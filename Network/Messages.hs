@@ -7,16 +7,18 @@ type OtherPoints = Int
 type Points = Int
 type Name = String
 
-data ServerMessage = HELO Version Message
+data ServerMessage = 
+    HELO Version Message
     | DENY Message
     | TURN MyPoints OtherPoints Message
     | THRW Points Message
     | DEF MyPoints OtherPoints Message
     | WIN MyPoints OtherPoints Message
-    deriving (Show, Eq)
+    deriving (Show, Eq, Read)
 
-data ClientMessage = AUTH Name Message
+data ClientMessage = 
+    AUTH Name Message
     | ROLL Message
     | SAVE Message
-    deriving (Show, Eq)
+    deriving (Show, Eq, Read)
 
