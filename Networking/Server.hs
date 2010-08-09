@@ -13,12 +13,9 @@ connectToServer :: String -> String -> ServerConnection
 connectToServer url port = do
     addrInfo <- getAddrInfo Nothing (Just url) (Just port)
     let serverAddr = head addrInfo
-
     sock <- socket (addrFamily serverAddr) Stream defaultProtocol
     setSocketOption sock KeepAlive 1
-
     connect sock (addrAddress serverAddr)
-
     h <- socketToHandle sock WriteMode
     hSetBuffering h LineBuffering
 
