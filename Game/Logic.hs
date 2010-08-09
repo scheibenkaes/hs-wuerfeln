@@ -5,5 +5,8 @@ import Game.Gameplay
 type Move = Int
 type Moves = [Move]
 
-class LogicFunc where
-    calculateNextMove :: Moves -> Moves -> PlayerChoice
+class LogicFunc a where
+    calculateNextMove :: 
+        a -> -- Eigene Zuege
+        a -> -- Gegnerische Zuege
+        PlayerChoice -- Wuerfeln oder nicht wuerfeln, das ist hier die Frage
