@@ -19,6 +19,7 @@ data ServerMessage =
     deriving (Eq, Read)
 
 instance Show ServerMessage where
+-- TODO: funktion unwords nutzen
     show (HELO v m) = "HELO " ++ v ++ " " ++ m
     show (DENY m)   = "DENY " ++ m
     show (TURN my other m) = "TURN " ++ show my ++ " " ++ show other ++ " " ++ m 
@@ -36,10 +37,14 @@ instance Show ClientMessage where
     show (ROLL m) = "ROLL " ++ m
     show (SAVE m) = "SAVE " ++ m
 
-
+{- Nicht benoetigt -> Nur Schreiben!
 instance Read ClientMessage where
     readsPrec _ value 
+        | "AUTH" `isPrefixOf` value = readAuth value
         | "ROLL" `isPrefixOf` value = readRoll value
+        | "SAVE" `isPrefixOf` value = readSave value
         | otherwise = []
-        where readRoll s = [(ROLL $ parts !! 1, "")]
+        where readAuth s = [(AUTH $ )]
+        where readRoll s = [(ROLL $ drop 5 value, "")]
                 where parts = words s
+-}
