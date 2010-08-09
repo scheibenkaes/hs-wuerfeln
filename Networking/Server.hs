@@ -24,6 +24,13 @@ connectToServer url port = do
             return sock
         socket2Handle :: Socket -> ServerConnection
         socket2Handle sock = do
-            h <- socketToHandle sock WriteMode
+            h <- socketToHandle sock ReadWriteMode
             hSetBuffering h LineBuffering
             return h 
+
+sendAuth :: Handle -> String -> IO ()
+sendAuth conn name = do
+    hPutStrLn conn "AUTH hTest"
+
+
+
