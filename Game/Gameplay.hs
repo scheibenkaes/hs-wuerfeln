@@ -1,8 +1,8 @@
 module Game.Gameplay where
 
 data PlayerChoice = 
-    ROLL 
-    | SAVE 
+    CALL 
+    | FOLD 
     deriving (Eq, Show, Read)
 
 
