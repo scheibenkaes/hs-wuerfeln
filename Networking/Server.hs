@@ -12,8 +12,7 @@ type ServerConnection = IO Handle
 connectToServer :: String -> String -> ServerConnection
 connectToServer url port = do
     sock <- openSocket url port
-    h <- socketToHandle sock WriteMode
-    hSetBuffering h LineBuffering
+    h <- socket2Handle sock
     return h
     where
         openSocket url port = do
@@ -23,3 +22,8 @@ connectToServer url port = do
             setSocketOption sock KeepAlive 1
             connect sock (addrAddress serverAddr)
             return sock
+        socket2Handle :: Socket -> ServerConnection
+        socket2Handle sock = do
+            h <- socketToHandle sock WriteMode
+            hSetBuffering h LineBuffering
+            return h 
