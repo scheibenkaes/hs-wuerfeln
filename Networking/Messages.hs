@@ -1,5 +1,7 @@
 module Networking.Messages where
 
+import Data.List
+
 type Version = String
 type Message = String
 type MyPoints = Int
@@ -28,11 +30,17 @@ data ClientMessage =
     AUTH Name Message
     | ROLL Message
     | SAVE Message
-    deriving (Eq, Read)
-
 
 instance Show ClientMessage where
     show (AUTH n m) = "AUTH " ++ n ++ " " ++ m
     show (ROLL m) = "ROLL " ++ m
-    show (SAVE m) = "ROLL " ++ m
+    show (SAVE m) = "SAVE " ++ m
 
+readRoll s = 
+    [(ROLL $ parts !! 1, "")]
+    where parts = words s
+
+instance Read ClientMessage where
+    readsPrec _ value 
+        | "ROLL" `isPrefixOf` value = readRoll value
+        | otherwise = []
