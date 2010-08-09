@@ -36,11 +36,10 @@ instance Show ClientMessage where
     show (ROLL m) = "ROLL " ++ m
     show (SAVE m) = "SAVE " ++ m
 
-readRoll s = 
-    [(ROLL $ parts !! 1, "")]
-    where parts = words s
 
 instance Read ClientMessage where
     readsPrec _ value 
         | "ROLL" `isPrefixOf` value = readRoll value
         | otherwise = []
+        where readRoll s = [(ROLL $ parts !! 1, "")]
+                where parts = words s
