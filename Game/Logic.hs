@@ -7,6 +7,6 @@ type Moves = [Move]
 
 class LogicFunc a where
     calculateNextMove :: 
-        a -> -- Eigene Zuege
-        a -> -- Gegnerische Zuege
+        [a] -> -- Eigene Zuege
+        [a] -> -- Gegnerische Zuege
         PlayerChoice -- Wuerfeln oder nicht wuerfeln, das ist hier die Frage
