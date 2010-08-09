@@ -1,14 +1,14 @@
-module Main () where
 
 import Networking.Server
 import Game.Logic
 
-mainLoop :: LogicCallback -> ServerConnection -> IO ()
-mainLoop logic server = putStrLn "ASD"
+mainLoop :: LogicCallback -> IO ServerConnection -> IO ()
+mainLoop logic server = do
+    putStrLn "asd"
 
 main :: IO () 
 main = do
-    mainLoop stupidLogic $ connectToServer "localhost" port
+    mainLoop stupidLogic $ connectToServer server port
 
 
 

@@ -1,15 +1,16 @@
 module Networking.Server where 
 
-import Network.Socket
 import System.IO
+
+import Network.Socket
 
 server = "wettbewerb.linux-magazin.de"
 
 port = "3333"
 
-type ServerConnection = IO Handle
+type ServerConnection = Handle
 
-connectToServer :: String -> String -> ServerConnection
+connectToServer :: String -> String -> IO ServerConnection
 connectToServer url port = do
     sock <- openSocket url port
     h <- socket2Handle sock
@@ -22,15 +23,17 @@ connectToServer url port = do
             setSocketOption sock KeepAlive 1
             connect sock (addrAddress serverAddr)
             return sock
-        socket2Handle :: Socket -> ServerConnection
+        socket2Handle :: Socket -> IO ServerConnection
         socket2Handle sock = do
             h <- socketToHandle sock ReadWriteMode
             hSetBuffering h LineBuffering
             return h 
 
-sendAuth :: Handle -> String -> IO ()
+sendAuth :: Handle -> String -> IO String
 sendAuth conn name = do
-    hPutStrLn conn "AUTH hTest"
+    hPutStrLn conn $ "AUTH " ++ name
+    s <- hGetLine conn
+    return s 
 
 
 
