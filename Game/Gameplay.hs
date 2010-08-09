@@ -1,10 +1,8 @@
 module Game.Gameplay where
 
-type Message = String
-
 data PlayerChoice = 
-    ROLL Message
-    | SAVE Message
+    ROLL 
+    | SAVE 
     deriving (Eq, Show, Read)
 
 

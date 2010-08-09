@@ -2,7 +2,7 @@ module Game.Logic where
 
 import Game.Gameplay
 
-type Move = Int
+type Move = (PlayerChoice, Int)
 type Moves = [Move]
 
 class LogicFunc a where
