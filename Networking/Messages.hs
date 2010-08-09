@@ -28,5 +28,11 @@ data ClientMessage =
     AUTH Name Message
     | ROLL Message
     | SAVE Message
-    deriving (Show, Eq, Read)
+    deriving (Eq, Read)
+
+
+instance Show ClientMessage where
+    show (AUTH n m) = "AUTH " ++ n ++ " " ++ m
+    show (ROLL m) = "ROLL " ++ m
+    show (SAVE m) = "ROLL " ++ m
 
