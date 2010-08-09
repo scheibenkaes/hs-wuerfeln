@@ -1,9 +1,15 @@
 module Communication where
 
-import Networking.Messages
+import Data.List
+
+import Networking.Messages hiding (ROLL, SAVE)
 import Game.Gameplay
 
 convertChoiceToMessage :: PlayerChoice -> String -> String
-convertChoiceToMessage CALL s = "ROLL " ++ s ++ "\n"
-convertChoiceToMessage FOLD s = "SAVE " ++ s ++ "\n"
+convertChoiceToMessage ROLL s = "ROLL " ++ s ++ "\n"
+convertChoiceToMessage SAVE s = "SAVE " ++ s ++ "\n"
 
+convertServerMessageToChoice :: String -> PlayerChoice
+convertServerMessageToChoice msg    
+    | "ROLL " `isPrefixOf` msg = ROLL
+    | "SAVE " `isPrefixOf` msg = SAVE
