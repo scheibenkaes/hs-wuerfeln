@@ -1,4 +1,4 @@
-module Network.Messages where
+module Wuerfeln.Network.Messages where
 
 type Version = String
 type Message = String

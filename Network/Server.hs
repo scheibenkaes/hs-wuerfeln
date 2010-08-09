@@ -1,4 +1,4 @@
-module Network.Server where 
+module Wuerfeln.Network.Server where 
 
 server = "wettbewerb.linux-magazin.de"
 
