@@ -37,25 +37,32 @@ getNextMsg srv = do
     msg <- readNextLineFromServer srv
     return $ parseServerMessage msg
 
-sendMyChoiceToServer :: Handle -> PlayerChoice -> IO ()
-sendMyChoiceToServer srv choice = sendLineToServer srv $ show choice 
+sendMyChoiceToServer :: Handle -> PlayerChoice -> String -> IO ()
+sendMyChoiceToServer srv (Roll) msg = sendLineToServer srv $ show $ ROLL msg
+sendMyChoiceToServer srv (Save) msg = sendLineToServer srv $ show $ SAVE msg
    
+checkForEndOfGame :: ServerMessage -> IO ()
+checkForEndOfGame (WIN my other msg) = (putStrLn $ "SIEG!! ") >> exitSuccess
+checkForEndOfGame (DEF my other msg) = (putStrLn "Red mer nicht drüber!") >> exitFailure
+checkForEndOfGame _ = putStr ""
+
 
 communicationLoop :: LogicCallback -> Handle -> IO ()
 communicationLoop logic server = do
     fstMsg <- getNextMsg server
-    putMsg fstMsg
     communicationLoop' fstMsg Dunno [] [(initOtherTurns fstMsg)]
     where   communicationLoop' :: ServerMessage -> WhosInTurn -> [Moves] -> [Moves] -> IO ()
             communicationLoop' lastMsg whoWasLastInTurn myMoves otherMoves = do
 --              nextMsg <- getNextMsg server                
-                putStrLn $ show lastMsg
+                checkForEndOfGame lastMsg
+                putMsg lastMsg
                 let whosTurnIsItNow = checkWohIsInTurn whoWasLastInTurn lastMsg 
                 case whosTurnIsItNow of
                     Me  -> do
+                        --putStrLn "Ich bin dran!"
                         let myChoice = logic myMoves otherMoves
                             myUpdatedMoves = updateMyMoves lastMsg myMoves 
-                        sendMyChoiceToServer server myChoice 
+                        sendMyChoiceToServer server myChoice "Jeeeehhaaww"
                         nextMsg <- getNextMsg server
                         communicationLoop' nextMsg whosTurnIsItNow myUpdatedMoves otherMoves 
                         where
@@ -67,6 +74,7 @@ communicationLoop logic server = do
                                 i = init ms
                                 in i ++ [(l ++ [(Roll, p)])]
                     OtherGuy -> do
+                        --putStrLn "Der andere ist dran"
                         let updatedMoves = updateOtherMoves lastMsg otherMoves
                         nextMsg <- getNextMsg server
                         communicationLoop' nextMsg whosTurnIsItNow myMoves updatedMoves
@@ -81,8 +89,11 @@ communicationLoop logic server = do
 
                 where   checkWohIsInTurn :: WhosInTurn -> ServerMessage -> WhosInTurn
                         checkWohIsInTurn (OtherGuy) (TURN _ _ _)    = Me
+                        checkWohIsInTurn (OtherGuy) (THRW 6 _)      = Me
                         checkWohIsInTurn (OtherGuy) (THRW _ _)      = OtherGuy
+                        checkWohIsInTurn (Me) (THRW 6 _)            = OtherGuy
                         checkWohIsInTurn (Me) (THRW _ _)            = Me
+                        checkWohIsInTurn (Me) (TURN _ _ _)          = Me
                         checkWohIsInTurn (Dunno) m                  = detectWhoStarts m
                 
             initOtherTurns :: ServerMessage -> Moves
