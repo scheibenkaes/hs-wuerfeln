@@ -1,6 +1,9 @@
 module Game.Logic where
 
-import Game.Gameplay
+data PlayerChoice = 
+    Roll 
+    | Save 
+    deriving (Eq, Show)
 
 type Move = (PlayerChoice, Int)
 type Moves = [Move]
