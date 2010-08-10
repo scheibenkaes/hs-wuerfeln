@@ -1,9 +1,10 @@
-build: wuerfeln 
+wuerfeln: 
 	ghc --make wuerfeln.hs
         
-run: wuerfeln
+game: wuerfeln
 	./wuerfeln
 
 clean:
-	rm -vf *.o *.hi
-	rm -vf **/*.o **/*.hi
+	rm -f *.o *.hi
+	rm -f **/*.o **/*.hi
+	rm wuerfeln
