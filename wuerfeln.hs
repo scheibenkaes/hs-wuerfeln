@@ -1,14 +1,30 @@
+import System.IO
 
 import Networking.Server
+import Networking.Messages
 import Game.Logic
 
-mainLoop :: LogicCallback -> IO ServerConnection -> IO ()
+appName = "hs-wuerfeln"
+
+mainLoop :: LogicCallback -> Handle -> IO ()
 mainLoop logic server = do
-    putStrLn "asd"
+    putStrLn "Melde an..."
+    --sendAuth server appName
+    success <- authenticate server
+    putStrLn $ show success
+    putStrLn "Verbindung hergestellt!"
+    where
+        authenticate conn = do
+            str <- sendAuth conn appName
+            let msg = read str :: ServerMessage
+            return msg
+
+
 
 main :: IO () 
 main = do
-    mainLoop stupidLogic $ connectToServer defaultServer defaultPort
+    conn <- connectToServer defaultServer defaultPort
+    mainLoop stupidLogic conn
 
 
 
