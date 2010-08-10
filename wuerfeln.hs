@@ -10,9 +10,12 @@ appName = "hs-wuerfeln"
 putMsg msg = 
     putStrLn $ show msg 
 
-data WhosTurn = Mine | OtherGuy
+data WhosInTurn = Me | OtherGuy
 
---detectWhoStarts :: ServerMessage -> WhosTurn
+detectWhoStarts :: ServerMessage -> WhosInTurn
+detectWhoStarts (TURN _ _ _) = Me
+detectWhoStarts (_) = OtherGuy
+    
 
 didSignupSucceed :: ServerMessage -> Bool
 didSignupSucceed (HELO _ _) = True
@@ -33,7 +36,7 @@ getNextMsg srv = do
 communicationLoop :: LogicCallback -> Handle -> IO ()
 communicationLoop logic server = do
     fstMsg <- getNextMsg server
-    putStrLn $ show fstMsg
+    putMsg fstMsg
 
 mainLoop :: LogicCallback -> Handle -> IO ()
 mainLoop logic server = do
