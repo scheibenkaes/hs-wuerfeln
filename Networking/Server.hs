@@ -8,9 +8,7 @@ defaultServer = "wettbewerb.linux-magazin.de"
 
 defaultPort = "3333"
 
-type ServerConnection = Handle
-
-connectToServer :: String -> String -> IO ServerConnection
+connectToServer :: String -> String -> IO Handle
 connectToServer url port = do
     sock <- openSocket url port
     h <- socket2Handle sock
@@ -23,7 +21,7 @@ connectToServer url port = do
             setSocketOption sock KeepAlive 1
             connect sock (addrAddress serverAddr)
             return sock
-        socket2Handle :: Socket -> IO ServerConnection
+        socket2Handle :: Socket -> IO Handle
         socket2Handle sock = do
             h <- socketToHandle sock ReadWriteMode
             hSetBuffering h LineBuffering

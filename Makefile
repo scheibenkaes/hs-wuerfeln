@@ -1,7 +1,7 @@
-wuerfeln: 
-	ghc --make wuerfeln.hs
+build: 
+	ghc --make wuerfeln
         
-game: wuerfeln
+game: build
 	./wuerfeln
 
 clean:
