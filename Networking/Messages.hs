@@ -16,7 +16,16 @@ data ServerMessage =
     | THRW Points Message
     | DEF MyPoints OtherPoints Message
     | WIN MyPoints OtherPoints Message
-    deriving (Eq, Read)
+    deriving (Eq)
+
+instance Read ServerMessage where
+    readsPrec _ value
+        | "HELO" `isPrefixOf` value = readHelo value
+        | otherwise = []
+        where readHelo s = 
+                let 
+                w = words s
+                in [(HELO (w !! 1) (unwords $ drop 2 w), "")]
 
 instance Show ServerMessage where
 -- TODO: funktion unwords nutzen
