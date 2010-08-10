@@ -21,14 +21,17 @@ data ServerMessage =
 instance Read ServerMessage where
     readsPrec _ value
         | "HELO" `isPrefixOf` value = readHelo $ words value
-        | "DENY" `isPrefixOf` value = readDeny value
+        | "DENY" `isPrefixOf` value = readDeny $ words value
+        | "TURN" `isPrefixOf` value = readTurn $ words value
         | otherwise = []
         where   readHelo xs = 
                     [(HELO (xs !! 1) (unwords $ drop 2 xs), "")]
-                readDeny s = 
+                readDeny xs = 
+                    [(DENY $ unwords $ drop 1 xs, "")]
+                readTurn xs =
                     let
-                    xs = words s
-                    in [(DENY $ unwords $ drop 1 xs, "")]
+                    rest = unwords $ drop 3 xs
+                    in [(TURN (read $ xs !! 1 :: Int) (read $ xs !! 2 :: Int) rest, "")]
 
 instance Show ServerMessage where
 -- TODO: funktion unwords nutzen
