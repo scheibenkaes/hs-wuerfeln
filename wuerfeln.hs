@@ -4,7 +4,6 @@ import System.Exit
 import Networking.Server
 import Networking.Messages
 import Game.Logic
-import Game.Gameplay
 
 appName = "hs-wuerfeln"
 
@@ -52,22 +51,28 @@ communicationLoop logic server = do
             communicationLoop' lastMsg whoWasLastInTurn myMoves otherMoves = do
                 nextMsg <- getNextMsg server                
                 putStrLn $ show nextMsg
-                let whosTurnIsItNow = checkWohIsInTurn $ nextMsg whoWasLastInTurn
+                let whosTurnIsItNow = checkWohIsInTurn whoWasLastInTurn nextMsg 
                 case whosTurnIsItNow of
-                    Me  -> 
+                    Me  -> do
                         let myChoice = logic myMoves otherMoves
-                        in 
-                            sendMyChoiceToServer server myChoice 
-                            communicationLoop' nextMsg Me myUpdatedMoves otherMoves 
+                            myUpdatedMoves = updateMyMoves nextMsg myMoves 
+                        sendMyChoiceToServer server myChoice 
+                        communicationLoop' nextMsg Me myUpdatedMoves otherMoves 
+                        where
+                            updateMyMoves :: ServerMessage -> [Moves] -> [Moves]
+                            updateMyMoves (THRW p _) [] = [[(Roll, p)]]
+                            updateMyMoves (THRW p _) ms = 
+                                let 
+                                l = last ms
+                                i = init ms
+                                in i ++ [(l ++ [(Roll, p)])]
                     _   -> 
                         putStrLn "asd"
-                where 
-                    checkWohIsInTurn :: WhosInTurn -> ServerMessage -> WhosInTurn
-                    checkWohIsInTurn (OtherGuy, TURN _ _ _) = Me
-                    checkWohIsInTurn (OtherGuy, THRW _ _)   = OtherGuy
-                    checkWohIsInTurn (Me, THRW _ _)         = Me
+                where   checkWohIsInTurn :: WhosInTurn -> ServerMessage -> WhosInTurn
+                        checkWohIsInTurn (OtherGuy) (TURN _ _ _) = Me
+                        checkWohIsInTurn (OtherGuy) (THRW _ _)   = OtherGuy
+                        checkWohIsInTurn (Me) (THRW _ _)         = Me
                 
-
             initOtherTurns :: ServerMessage -> Moves
             initOtherTurns (TURN _ _ _) = []
             initOtherTurns (THRW p _) = [(Roll, p)]
