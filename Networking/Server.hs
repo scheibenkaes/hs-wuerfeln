@@ -4,9 +4,9 @@ import System.IO
 
 import Network.Socket
 
-server = "wettbewerb.linux-magazin.de"
+defaultServer = "wettbewerb.linux-magazin.de"
 
-port = "3333"
+defaultPort = "3333"
 
 type ServerConnection = Handle
 

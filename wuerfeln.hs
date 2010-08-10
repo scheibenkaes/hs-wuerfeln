@@ -8,7 +8,7 @@ mainLoop logic server = do
 
 main :: IO () 
 main = do
-    mainLoop stupidLogic $ connectToServer server port
+    mainLoop stupidLogic $ connectToServer defaultServer defaultPort
 
 
 
