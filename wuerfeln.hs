@@ -38,7 +38,7 @@ getNextMsg srv = do
 
 sendMyChoiceToServer :: Handle -> PlayerChoice -> IO ()
 sendMyChoiceToServer srv choice = sendLineToServer srv $ show choice 
-    
+   
 
 communicationLoop :: LogicCallback -> Handle -> IO ()
 communicationLoop logic server = do
@@ -66,8 +66,18 @@ communicationLoop logic server = do
                                 l = last ms
                                 i = init ms
                                 in i ++ [(l ++ [(Roll, p)])]
-                    _   -> 
-                        putStrLn "asd"
+                    OtherGuy -> do
+                        let updatedMoves = updateOtherMoves nextMsg otherMoves
+                        communicationLoop' nextMsg OtherGuy myMoves updatedMoves
+                        where 
+                            updateOtherMoves :: ServerMessage -> [Moves] -> [Moves]
+                            updateOtherMoves (THRW p _) [] = [[(Roll, p)]]
+                            updateOtherMoves (THRW p _) ms = 
+                                let 
+                                l = last ms
+                                i = init ms
+                                in i ++ [(l ++ [(Roll, p)])]
+
                 where   checkWohIsInTurn :: WhosInTurn -> ServerMessage -> WhosInTurn
                         checkWohIsInTurn (OtherGuy) (TURN _ _ _) = Me
                         checkWohIsInTurn (OtherGuy) (THRW _ _)   = OtherGuy
