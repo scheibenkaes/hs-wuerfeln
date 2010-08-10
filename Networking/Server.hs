@@ -29,9 +29,13 @@ connectToServer url port = do
 
 sendAuth :: Handle -> String -> IO String
 sendAuth conn name = do
+    -- TODO sendLineToServer benutzen
     hPutStrLn conn $ "AUTH " ++ name
     s <- hGetLine conn
     return s 
+
+sendLineToServer :: Handle -> String -> IO ()
+sendLineToServer conn l = hPutStrLn conn l
 
 readNextLineFromServer :: Handle -> IO String
 readNextLineFromServer srv = hGetLine srv
