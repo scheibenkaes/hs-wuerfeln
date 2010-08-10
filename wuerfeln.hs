@@ -49,7 +49,7 @@ communicationLoop logic server = do
     communicationLoop' fstMsg starter [] [(initOtherTurns fstMsg)]
     where   communicationLoop' :: ServerMessage -> WhosInTurn -> [Moves] -> [Moves] -> IO ()
             communicationLoop' lastMsg whoWasLastInTurn myMoves otherMoves = do
-                nextMsg <- getNextMsg server                
+--                nextMsg <- getNextMsg server                
                 putStrLn $ show nextMsg
                 let whosTurnIsItNow = checkWohIsInTurn whoWasLastInTurn nextMsg 
                 case whosTurnIsItNow of
