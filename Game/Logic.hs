@@ -8,4 +8,4 @@ type Moves = [Move]
 type LogicCallback = ([Moves] -> [Moves] -> PlayerChoice)
 
 stupidLogic :: LogicCallback
-stupidLogic own other = ROLL
+stupidLogic own other = Roll
