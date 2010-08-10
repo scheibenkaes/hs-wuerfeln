@@ -25,15 +25,12 @@ instance Read ServerMessage where
         | "TURN" `isPrefixOf` value = read3PtMessage (TURN) (words value)
         | "THRW" `isPrefixOf` value = readThrw $ words value
         | "DEF" `isPrefixOf` value = read3PtMessage (DEF) (words value)
+        | "WIN" `isPrefixOf` value = read3PtMessage (WIN) (words value)
         | otherwise = []
         where   readHelo xs = 
                     [(HELO (xs !! 1) (unwords $ drop 2 xs), "")]
                 readDeny xs = 
                     [(DENY $ unwords $ drop 1 xs, "")]
-                readTurn xs =
-                    let
-                    rest = unwords $ drop 3 xs
-                    in [(TURN (read $ xs !! 1 :: Int) (read $ xs !! 2 :: Int) rest, "")]
                 readThrw xs =
                     [(THRW (read $ xs !! 1 :: Int) (unwords $ drop 2 xs), "")]
                 read3PtMessage t xs =
