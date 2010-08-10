@@ -6,12 +6,14 @@ import Game.Logic
 
 appName = "hs-wuerfeln"
 
+putMsg msg = 
+    putStrLn $ show msg 
+
 mainLoop :: LogicCallback -> Handle -> IO ()
 mainLoop logic server = do
     putStrLn "Melde an..."
-    --sendAuth server appName
     success <- authenticate server
-    putStrLn $ show success
+    putMsg success
     putStrLn "Verbindung hergestellt!"
     where
         authenticate conn = do
