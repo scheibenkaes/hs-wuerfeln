@@ -13,6 +13,7 @@ putMsg msg =
 data WhosInTurn = 
       Me 
     | OtherGuy
+    | Dunno
     deriving (Show, Eq)
 
 detectWhoStarts :: ServerMessage -> WhosInTurn
@@ -44,31 +45,31 @@ communicationLoop :: LogicCallback -> Handle -> IO ()
 communicationLoop logic server = do
     fstMsg <- getNextMsg server
     putMsg fstMsg
-    let starter = detectWhoStarts fstMsg
-    putStrLn $ show starter
-    communicationLoop' fstMsg starter [] [(initOtherTurns fstMsg)]
+    communicationLoop' fstMsg Dunno [] [(initOtherTurns fstMsg)]
     where   communicationLoop' :: ServerMessage -> WhosInTurn -> [Moves] -> [Moves] -> IO ()
             communicationLoop' lastMsg whoWasLastInTurn myMoves otherMoves = do
---                nextMsg <- getNextMsg server                
-                putStrLn $ show nextMsg
-                let whosTurnIsItNow = checkWohIsInTurn whoWasLastInTurn nextMsg 
+--              nextMsg <- getNextMsg server                
+                putStrLn $ show lastMsg
+                let whosTurnIsItNow = checkWohIsInTurn whoWasLastInTurn lastMsg 
                 case whosTurnIsItNow of
                     Me  -> do
                         let myChoice = logic myMoves otherMoves
-                            myUpdatedMoves = updateMyMoves nextMsg myMoves 
+                            myUpdatedMoves = updateMyMoves lastMsg myMoves 
                         sendMyChoiceToServer server myChoice 
-                        communicationLoop' nextMsg Me myUpdatedMoves otherMoves 
+                        nextMsg <- getNextMsg server
+                        communicationLoop' nextMsg whosTurnIsItNow myUpdatedMoves otherMoves 
                         where
                             updateMyMoves :: ServerMessage -> [Moves] -> [Moves]
                             updateMyMoves (THRW p _) [] = [[(Roll, p)]]
-                            updateMyMoves (THRW p _) ms = 
+                            updateMyMoves (THRW p _) ms =  
                                 let 
                                 l = last ms
                                 i = init ms
                                 in i ++ [(l ++ [(Roll, p)])]
                     OtherGuy -> do
-                        let updatedMoves = updateOtherMoves nextMsg otherMoves
-                        communicationLoop' nextMsg OtherGuy myMoves updatedMoves
+                        let updatedMoves = updateOtherMoves lastMsg otherMoves
+                        nextMsg <- getNextMsg server
+                        communicationLoop' nextMsg whosTurnIsItNow myMoves updatedMoves
                         where 
                             updateOtherMoves :: ServerMessage -> [Moves] -> [Moves]
                             updateOtherMoves (THRW p _) [] = [[(Roll, p)]]
@@ -79,9 +80,10 @@ communicationLoop logic server = do
                                 in i ++ [(l ++ [(Roll, p)])]
 
                 where   checkWohIsInTurn :: WhosInTurn -> ServerMessage -> WhosInTurn
-                        checkWohIsInTurn (OtherGuy) (TURN _ _ _) = Me
-                        checkWohIsInTurn (OtherGuy) (THRW _ _)   = OtherGuy
-                        checkWohIsInTurn (Me) (THRW _ _)         = Me
+                        checkWohIsInTurn (OtherGuy) (TURN _ _ _)    = Me
+                        checkWohIsInTurn (OtherGuy) (THRW _ _)      = OtherGuy
+                        checkWohIsInTurn (Me) (THRW _ _)            = Me
+                        checkWohIsInTurn (Dunno) m                  = detectWhoStarts m
                 
             initOtherTurns :: ServerMessage -> Moves
             initOtherTurns (TURN _ _ _) = []
