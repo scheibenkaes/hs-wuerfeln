@@ -58,14 +58,5 @@ instance Show ClientMessage where
     show (ROLL m) = "ROLL " ++ m
     show (SAVE m) = "SAVE " ++ m
 
-{- Nicht benoetigt -> Nur Schreiben!
-instance Read ClientMessage where
-    readsPrec _ value 
-        | "AUTH" `isPrefixOf` value = readAuth value
-        | "ROLL" `isPrefixOf` value = readRoll value
-        | "SAVE" `isPrefixOf` value = readSave value
-        | otherwise = []
-        where readAuth s = [(AUTH $ )]
-        where readRoll s = [(ROLL $ drop 5 value, "")]
-                where parts = words s
--}
+parseServerMessage :: String -> ServerMessage
+parseServerMessage msg = read msg :: ServerMessage

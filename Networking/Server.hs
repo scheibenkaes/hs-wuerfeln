@@ -33,5 +33,6 @@ sendAuth conn name = do
     s <- hGetLine conn
     return s 
 
-
+readNextLineFromServer :: Handle -> IO String
+readNextLineFromServer srv = hGetLine srv
 
