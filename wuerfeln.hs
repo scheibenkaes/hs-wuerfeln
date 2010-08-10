@@ -4,13 +4,17 @@ import System.Exit
 import Networking.Server
 import Networking.Messages
 import Game.Logic
+import Game.Gameplay
 
 appName = "hs-wuerfeln"
 
 putMsg msg = 
     putStrLn $ show msg 
 
-data WhosInTurn = Me | OtherGuy
+data WhosInTurn = 
+      Me 
+    | OtherGuy
+    deriving (Show, Eq)
 
 detectWhoStarts :: ServerMessage -> WhosInTurn
 detectWhoStarts (TURN _ _ _) = Me
@@ -33,10 +37,41 @@ getNextMsg srv = do
     msg <- readNextLineFromServer srv
     return $ parseServerMessage msg
 
+sendMyChoiceToServer :: Handle -> PlayerChoice -> IO ()
+sendMyChoiceToServer srv choice = sendLineToServer srv $ show choice 
+    
+
 communicationLoop :: LogicCallback -> Handle -> IO ()
 communicationLoop logic server = do
     fstMsg <- getNextMsg server
     putMsg fstMsg
+    let starter = detectWhoStarts fstMsg
+    putStrLn $ show starter
+    communicationLoop' fstMsg starter [] [(initOtherTurns fstMsg)]
+    where   communicationLoop' :: ServerMessage -> WhosInTurn -> [Moves] -> [Moves] -> IO ()
+            communicationLoop' lastMsg whoWasLastInTurn myMoves otherMoves = do
+                nextMsg <- getNextMsg server                
+                putStrLn $ show nextMsg
+                let whosTurnIsItNow = checkWohIsInTurn $ nextMsg whoWasLastInTurn
+                case whosTurnIsItNow of
+                    Me  -> 
+                        let myChoice = logic myMoves otherMoves
+                        in 
+                            sendMyChoiceToServer server myChoice 
+                            communicationLoop' nextMsg Me myUpdatedMoves otherMoves 
+                    _   -> 
+                        putStrLn "asd"
+                where 
+                    checkWohIsInTurn :: WhosInTurn -> ServerMessage -> WhosInTurn
+                    checkWohIsInTurn (OtherGuy, TURN _ _ _) = Me
+                    checkWohIsInTurn (OtherGuy, THRW _ _)   = OtherGuy
+                    checkWohIsInTurn (Me, THRW _ _)         = Me
+                
+
+            initOtherTurns :: ServerMessage -> Moves
+            initOtherTurns (TURN _ _ _) = []
+            initOtherTurns (THRW p _) = [(Roll, p)]
+                
 
 mainLoop :: LogicCallback -> Handle -> IO ()
 mainLoop logic server = do
