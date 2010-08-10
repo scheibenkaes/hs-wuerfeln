@@ -22,8 +22,9 @@ instance Read ServerMessage where
     readsPrec _ value
         | "HELO" `isPrefixOf` value = readHelo $ words value
         | "DENY" `isPrefixOf` value = readDeny $ words value
-        | "TURN" `isPrefixOf` value = readTurn $ words value
+        | "TURN" `isPrefixOf` value = read3PtMessage (TURN) (words value)
         | "THRW" `isPrefixOf` value = readThrw $ words value
+        | "DEF" `isPrefixOf` value = read3PtMessage (DEF) (words value)
         | otherwise = []
         where   readHelo xs = 
                     [(HELO (xs !! 1) (unwords $ drop 2 xs), "")]
@@ -35,6 +36,11 @@ instance Read ServerMessage where
                     in [(TURN (read $ xs !! 1 :: Int) (read $ xs !! 2 :: Int) rest, "")]
                 readThrw xs =
                     [(THRW (read $ xs !! 1 :: Int) (unwords $ drop 2 xs), "")]
+                read3PtMessage t xs =
+                    let
+                    rest = unwords $ drop 3 xs
+                    in [(t (read $ xs !! 1 :: Int) (read $ xs !! 2 :: Int) rest, "")]
+                    
 
 instance Show ServerMessage where
 -- TODO: funktion unwords nutzen
