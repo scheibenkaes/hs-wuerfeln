@@ -2,6 +2,9 @@ module Game.Statistics where
 
 import Game.Logic
 
+maxPoints :: Int
+maxPoints = 50
+
 notLegal = (==6)
 legal = (<6)
 

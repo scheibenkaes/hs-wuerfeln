@@ -4,6 +4,7 @@ import System.Exit
 import Networking.Server
 import Networking.Messages
 import Game.Logic
+import Game.Statistics
 
 appName :: String
 appName = "hs-wuerfeln"
@@ -91,18 +92,18 @@ communicationLoop logic server = do
                     then 
                         gameEnded lastMsg 
                     else
-                        let continue = (continueWithNextMessage myUpdatedMoves otherUpdatedMoves)
+                        let continueWith = (continueWithNextMessage myUpdatedMoves otherUpdatedMoves)
                         in case (lastMsg, whoIsInTurn) of
                             ((TURN _ _ _), _) -> do
                                 sendNextMoveToServer
-                                continue Me 
+                                continueWith Me 
                             ((THRW 6 _), Me) -> do
-                                continue $ not' Me
+                                continueWith $ not' Me
                             ((THRW _ _), Me) -> do
                                 sendNextMoveToServer
-                                continue Me 
-                            ((THRW _ _), OtherGuy) -> do
-                                continue OtherGuy
+                                continueWith Me 
+                            ((THRW p _), OtherGuy) -> do
+                                continueWith OtherGuy
                                 
                         where   sendNextMoveToServer :: IO ()
                                 sendNextMoveToServer = do
@@ -110,8 +111,8 @@ communicationLoop logic server = do
                                     sendMyChoiceToServer server myChoice "Jeeeehhaaww"
                                 
                                 continueWithNextMessage my other inTurn = do
-                                    hPutStrLn stderr $ show my
-                                    hPutStrLn stderr $ show other
+                                --    hPutStrLn stderr $ show my
+                                --    hPutStrLn stderr $ show other
                                     nextMsg <- getNextMsg server
                                     communicationLoop' nextMsg inTurn my other
 
@@ -127,6 +128,7 @@ mainLoop logic server = do
     putMsg msg
     checkSignup msg
     communicationLoop logic server
+    disconnectFromServer server
     where
         authenticate conn = do
             str <- sendAuth conn appName

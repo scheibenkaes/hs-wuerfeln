@@ -10,6 +10,9 @@ defaultServer = "wettbewerb.linux-magazin.de"
 defaultPort :: String
 defaultPort = "3333"
 
+disconnectFromServer :: Handle -> IO ()
+disconnectFromServer h = hClose h
+
 connectToServer :: String -> String -> IO Handle
 connectToServer url port = withSocketsDo $ do
     sock <- openSocket 
