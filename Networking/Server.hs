@@ -40,6 +40,5 @@ sendLineToServer conn l = hPutStrLn conn l
 readNextLineFromServer :: Handle -> IO String
 readNextLineFromServer srv = do
     line <- hGetLine srv
---    putStrLn $ "Server sagt: " ++ line
     return line
 
