@@ -13,7 +13,6 @@ putMsg msg =
 data WhosInTurn = 
       Me 
     | OtherGuy
-    | Dunno
     deriving (Show, Eq)
 
 detectWhoStarts :: ServerMessage -> WhosInTurn
@@ -41,51 +40,79 @@ sendMyChoiceToServer :: Handle -> PlayerChoice -> String -> IO ()
 sendMyChoiceToServer srv (Roll) msg = sendLineToServer srv $ show $ ROLL msg
 sendMyChoiceToServer srv (Save) msg = sendLineToServer srv $ show $ SAVE msg
    
-checkForEndOfGame :: ServerMessage -> IO ()
-checkForEndOfGame (WIN my other msg) = (putStrLn "SIEG!! ") >> exitSuccess
-checkForEndOfGame (DEF my other msg) = (putStrLn "Mist!") >> exitFailure
-checkForEndOfGame _ = return () 
+checkForEndOfGame :: ServerMessage -> Bool
+checkForEndOfGame (WIN _ _ _)   = True
+checkForEndOfGame (DEF _ _ _)   = True
+checkForEndOfGame _             = False 
+
+gameEnded :: ServerMessage -> [Moves] -> [Moves] -> IO ()
+gameEnded w@(WIN _ _ _) mine others = ( putStrLn $ show w ) >> exitSuccess
+gameEnded w@(DEF _ _ _) mine others = ( putStrLn $ show w ) >> exitFailure
+
+appendToVeryLastElement :: Int -> [Moves] -> [Moves]
+appendToVeryLastElement n ms =
+        let l = last ms
+            i = init ms
+        in i ++ [(l ++ [(Roll, n)])]
+
+updateMoves :: ServerMessage -> [Moves] -> [Moves]
+updateMoves (THRW p _) [] = [[(Roll, p)]]
+updateMoves msg@(THRW 6 _) ms = 
+    let l = appendToVeryLastElement 6 ms
+    in l ++ []
+updateMoves (THRW p@_ _) ms = appendToVeryLastElement p ms 
+updateMoves _ ms = ms
+
+
+
+updateMovesForActivePlayer :: ServerMessage -> WhosInTurn -> [Moves] -> [Moves] -> ([Moves],  [Moves])
+updateMovesForActivePlayer msg (Me) mine other = (updateMoves msg mine, other)
+updateMovesForActivePlayer msg (OtherGuy) mine other = (mine, updateMoves msg other)
+
+not' :: WhosInTurn -> WhosInTurn
+not' Me         = OtherGuy
+not' OtherGuy   = Me
 
 
 communicationLoop :: LogicCallback -> Handle -> IO ()
 communicationLoop logic server = do
     fstMsg <- getNextMsg server
-    communicationLoop' fstMsg Dunno [] [(initOtherTurns fstMsg)]
+    let whoStarts = detectWhoStarts fstMsg
+    communicationLoop' fstMsg whoStarts [] [(initOtherTurns fstMsg)]
     where   communicationLoop' :: ServerMessage -> WhosInTurn -> [Moves] -> [Moves] -> IO ()
-            communicationLoop' lastMsg whoWasLastInTurn myMoves otherMoves = do
+            communicationLoop' lastMsg whoIsInTurn myMoves otherMoves = do
                 putMsg lastMsg
-                checkForEndOfGame lastMsg
-                let whosTurnIsItNow = checkWohIsInTurn whoWasLastInTurn lastMsg 
-                case whosTurnIsItNow of
-                    Me  -> do
-                        let myChoice = logic myMoves otherMoves
-                            myUpdatedMoves = updateMoves lastMsg myMoves 
-                        sendMyChoiceToServer server myChoice "Jeeeehhaaww"
-                        continueWithNextMessage whosTurnIsItNow myUpdatedMoves otherMoves
-                    OtherGuy -> do
-                        let updatedMoves = updateMoves lastMsg otherMoves
-                        continueWithNextMessage whosTurnIsItNow myMoves updatedMoves
+                let newVals = updateMovesForActivePlayer lastMsg whoIsInTurn myMoves otherMoves
+                let myUpdatedMoves = fst newVals
+                let otherUpdatedMoves = snd newVals
+                if checkForEndOfGame lastMsg
+                    then 
+                        gameEnded lastMsg myMoves otherMoves
+                    else
+                        let continue = (continueWithNextMessage myUpdatedMoves otherUpdatedMoves)
+                        in case (lastMsg, whoIsInTurn) of
+                            ((TURN _ _ _), _) -> do
+                                sendNextMoveToServer
+                                continue Me 
+                            ((THRW 6 _), Me) -> do
+                                continue $ not' Me
+                            ((THRW _ _), Me) -> do
+                                sendNextMoveToServer
+                                continue Me 
+                            ((THRW _ _), OtherGuy) -> do
+                                continue OtherGuy
+                                
+                        where   sendNextMoveToServer :: IO ()
+                                sendNextMoveToServer = do
+                                    let myChoice = logic myMoves otherMoves
+                                    sendMyChoiceToServer server myChoice "Jeeeehhaaww"
+                                
+                                continueWithNextMessage my other inTurn = do
+                                    --putStrLn $ show my
+                                    --putStrLn $ show other
+                                    nextMsg <- getNextMsg server
+                                    communicationLoop' nextMsg inTurn my other
 
-                where   checkWohIsInTurn :: WhosInTurn -> ServerMessage -> WhosInTurn
-                        checkWohIsInTurn (_) (TURN _ _ _)           = Me
-                        checkWohIsInTurn (OtherGuy) (THRW 6 _)      = Me
-                        checkWohIsInTurn (OtherGuy) (THRW _ _)      = OtherGuy
-                        checkWohIsInTurn (Me) (THRW 6 _)            = OtherGuy
-                        checkWohIsInTurn (Me) (THRW _ _)            = Me
-                        checkWohIsInTurn (Dunno) m                  = detectWhoStarts m
-
-                        updateMoves :: ServerMessage -> [Moves] -> [Moves]
-                        updateMoves (THRW p _) [] = [[(Roll, p)]]
-                        updateMoves (THRW p _) ms =  
-                            let l = last ms
-                                i = init ms
-                            in i ++ [(l ++ [(Roll, p)])]
-
-                        continueWithNextMessage inTurn my other = do
-                            nextMsg <- getNextMsg server
-                            communicationLoop' nextMsg inTurn my other
-                            
-                
             initOtherTurns :: ServerMessage -> Moves
             initOtherTurns (TURN _ _ _) = []
             initOtherTurns (THRW p _) = [(Roll, p)]
