@@ -95,21 +95,28 @@ communicationLoop logic server = do
                         let continueWith = (continueWithNextMessage myUpdatedMoves otherUpdatedMoves)
                         in case (lastMsg, whoIsInTurn) of
                             ((TURN _ _ _), _) -> do
-                                sendNextMoveToServer
-                                continueWith Me 
+                                let myChoice = logic myMoves otherMoves
+                                sendNextMoveToServer myChoice
+                                case myChoice of
+                                    Roll -> continueWith Me 
+                                    Save -> continueWith OtherGuy
                             ((THRW 6 _), Me) -> do
                                 continueWith $ not' Me
                             ((THRW _ _), Me) -> do
-                                sendNextMoveToServer
-                                continueWith Me 
+                                let myChoice = logic myMoves otherMoves
+                                sendNextMoveToServer myChoice
+                                case myChoice of
+                                    Roll -> continueWith Me 
+                                    Save -> continueWith OtherGuy
+                            ((THRW 6 _), OtherGuy) -> do
+                                continueWith Me
                             ((THRW p _), OtherGuy) -> do
                                 continueWith OtherGuy
                                 
-                        where   sendNextMoveToServer :: IO ()
-                                sendNextMoveToServer = do
-                                    let myChoice = logic myMoves otherMoves
-                                    sendMyChoiceToServer server myChoice "xxx"
-                                    putStrLn $ show myChoice
+                        where   sendNextMoveToServer :: PlayerChoice -> IO ()
+                                sendNextMoveToServer c = do
+                                    sendMyChoiceToServer server c "xxx"
+                                    --putStrLn $ show c
                                 
                                 continueWithNextMessage my other inTurn = do
                                 --    hPutStrLn stderr $ show my
