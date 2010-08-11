@@ -62,7 +62,7 @@ appendToVeryLastElement n ms =
 
 updateMoves :: ServerMessage -> [Moves] -> [Moves]
 updateMoves (THRW p _) [] = [[(Roll, p)]]
-updateMoves msg@(THRW 6 _) ms = 
+updateMoves (THRW 6 _) ms = 
     let l = appendToVeryLastElement 6 ms
     in l ++ []
 updateMoves (THRW p@_ _) ms = appendToVeryLastElement p ms 

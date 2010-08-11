@@ -4,8 +4,10 @@ import System.IO
 
 import Network.Socket
 
+defaultServer :: String
 defaultServer = "wettbewerb.linux-magazin.de"
 
+defaultPort :: String
 defaultPort = "3333"
 
 connectToServer :: String -> String -> IO Handle
@@ -29,8 +31,7 @@ connectToServer url port = do
 
 sendAuth :: Handle -> String -> IO String
 sendAuth conn name = do
-    -- TODO sendLineToServer benutzen
-    hPutStrLn conn $ "AUTH " ++ name
+    sendLineToServer conn $ "AUTH " ++ name
     s <- hGetLine conn
     return s 
 
