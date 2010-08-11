@@ -81,7 +81,7 @@ communicationLoop :: LogicCallback -> Handle -> IO ()
 communicationLoop logic server = do
     fstMsg <- getNextMsg server
     let whoStarts = detectWhoStarts fstMsg
-    communicationLoop' fstMsg whoStarts [] [(initOtherTurns fstMsg)]
+    communicationLoop' fstMsg whoStarts [] []
     where   communicationLoop' :: ServerMessage -> WhosInTurn -> [Moves] -> [Moves] -> IO ()
             communicationLoop' lastMsg whoIsInTurn myMoves otherMoves = do
                 putMsg lastMsg
@@ -108,7 +108,8 @@ communicationLoop logic server = do
                         where   sendNextMoveToServer :: IO ()
                                 sendNextMoveToServer = do
                                     let myChoice = logic myMoves otherMoves
-                                    sendMyChoiceToServer server myChoice "Jeeeehhaaww"
+                                    sendMyChoiceToServer server myChoice "xxx"
+                                    putStrLn $ show myChoice
                                 
                                 continueWithNextMessage my other inTurn = do
                                 --    hPutStrLn stderr $ show my
@@ -138,5 +139,5 @@ mainLoop logic server = do
 main :: IO () 
 main = do
     conn <- connectToServer defaultServer defaultPort
-    mainLoop stupidLogic conn
+    mainLoop breakAfterPoints conn
 

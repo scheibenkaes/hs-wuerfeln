@@ -34,12 +34,15 @@ connectToServer url port = withSocketsDo $ do
 
 sendAuth :: Handle -> String -> IO String
 sendAuth conn name = do
-    sendLineToServer conn $ "AUTH " ++ name
+    sendLineToServer conn $ "AUTH " ++ name ++ " los gehts"
     s <- hGetLine conn
     return s 
 
 sendLineToServer :: Handle -> String -> IO ()
-sendLineToServer conn l = hPutStrLn conn l
+sendLineToServer conn l = do
+    hPutStrLn conn $ l 
+    hFlush conn
+    putStrLn  $ "Zum Server: " ++ l
 
 readNextLineFromServer :: Handle -> IO String
 readNextLineFromServer srv = do
