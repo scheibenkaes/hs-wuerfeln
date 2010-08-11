@@ -5,8 +5,10 @@ import Networking.Server
 import Networking.Messages
 import Game.Logic
 
+appName :: String
 appName = "hs-wuerfeln"
 
+putMsg :: ServerMessage -> IO ()
 putMsg msg = 
     putStrLn $ show msg 
 
@@ -24,6 +26,7 @@ didSignupSucceed :: ServerMessage -> Bool
 didSignupSucceed (HELO _ _) = True
 didSignupSucceed (_) = False
 
+checkSignup :: ServerMessage -> IO ()
 checkSignup msg = 
     if didSignupSucceed msg
     then 
@@ -45,10 +48,12 @@ checkForEndOfGame (WIN _ _ _)   = True
 checkForEndOfGame (DEF _ _ _)   = True
 checkForEndOfGame _             = False 
 
-gameEnded :: ServerMessage -> [Moves] -> [Moves] -> IO ()
-gameEnded w@(WIN _ _ _) mine others = ( putStrLn $ show w ) >> exitSuccess
-gameEnded w@(DEF _ _ _) mine others = ( putStrLn $ show w ) >> exitFailure
+gameEnded :: ServerMessage -> IO ()
+gameEnded w@(WIN _ _ _) = ( putStrLn $ show w ) >> exitSuccess
+gameEnded w@(DEF _ _ _) = ( putStrLn $ show w ) >> exitFailure
+gameEnded msg@_ = putStrLn $ show msg
 
+-- ms darf nicht leer sein!!!
 appendToVeryLastElement :: Int -> [Moves] -> [Moves]
 appendToVeryLastElement n ms =
         let l = last ms
@@ -64,7 +69,6 @@ updateMoves (THRW p@_ _) ms = appendToVeryLastElement p ms
 updateMoves _ ms = ms
 
 
-
 updateMovesForActivePlayer :: ServerMessage -> WhosInTurn -> [Moves] -> [Moves] -> ([Moves],  [Moves])
 updateMovesForActivePlayer msg (Me) mine other = (updateMoves msg mine, other)
 updateMovesForActivePlayer msg (OtherGuy) mine other = (mine, updateMoves msg other)
@@ -72,7 +76,6 @@ updateMovesForActivePlayer msg (OtherGuy) mine other = (mine, updateMoves msg ot
 not' :: WhosInTurn -> WhosInTurn
 not' Me         = OtherGuy
 not' OtherGuy   = Me
-
 
 communicationLoop :: LogicCallback -> Handle -> IO ()
 communicationLoop logic server = do
@@ -87,7 +90,7 @@ communicationLoop logic server = do
                 let otherUpdatedMoves = snd newVals
                 if checkForEndOfGame lastMsg
                     then 
-                        gameEnded lastMsg myMoves otherMoves
+                        gameEnded lastMsg 
                     else
                         let continue = (continueWithNextMessage myUpdatedMoves otherUpdatedMoves)
                         in case (lastMsg, whoIsInTurn) of
@@ -108,8 +111,8 @@ communicationLoop logic server = do
                                     sendMyChoiceToServer server myChoice "Jeeeehhaaww"
                                 
                                 continueWithNextMessage my other inTurn = do
-                                    --putStrLn $ show my
-                                    --putStrLn $ show other
+                                    hPutStrLn stderr $ show my
+                                    hPutStrLn stderr $ show other
                                     nextMsg <- getNextMsg server
                                     communicationLoop' nextMsg inTurn my other
 
@@ -135,6 +138,4 @@ main :: IO ()
 main = do
     conn <- connectToServer defaultServer defaultPort
     mainLoop stupidLogic conn
-
-
 

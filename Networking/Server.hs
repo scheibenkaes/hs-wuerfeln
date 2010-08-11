@@ -10,11 +10,11 @@ defaultPort = "3333"
 
 connectToServer :: String -> String -> IO Handle
 connectToServer url port = do
-    sock <- openSocket url port
+    sock <- openSocket 
     h <- socket2Handle sock
     return h
     where
-        openSocket url port = do
+        openSocket = do
             addrInfo <- getAddrInfo Nothing (Just url) (Just port)
             let serverAddr = head addrInfo
             sock <- socket (addrFamily serverAddr) Stream defaultProtocol
