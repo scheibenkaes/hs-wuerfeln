@@ -53,7 +53,6 @@ gameEnded w@(WIN _ _ _) = ( putStrLn $ show w ) >> exitSuccess
 gameEnded w@(DEF _ _ _) = ( putStrLn $ show w ) >> exitFailure
 gameEnded msg@_ = putStrLn $ show msg
 
--- ms darf nicht leer sein!!!
 appendToVeryLastElement :: Int -> [Moves] -> [Moves]
 appendToVeryLastElement n ms =
         let l = last ms
@@ -64,7 +63,7 @@ updateMoves :: ServerMessage -> [Moves] -> [Moves]
 updateMoves (THRW p _) [] = [[(Roll, p)]]
 updateMoves (THRW 6 _) ms = 
     let l = appendToVeryLastElement 6 ms
-    in l ++ []
+    in l ++ [[]]
 updateMoves (THRW p@_ _) ms = appendToVeryLastElement p ms 
 updateMoves _ ms = ms
 
