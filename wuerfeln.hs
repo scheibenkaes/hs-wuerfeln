@@ -1,10 +1,10 @@
 import System.IO
 import System.Exit
+import Network.Socket
 
 import Networking.Server
 import Networking.Messages
 import Game.Logic
-import Game.Statistics
 
 appName :: String
 appName = "hs-wuerfeln"
@@ -35,12 +35,12 @@ checkSignup msg =
     else 
         putStrLn "Verbindung verweigert!" >> exitFailure
 
-getNextMsg :: Handle -> IO ServerMessage
+getNextMsg :: Socket -> IO ServerMessage
 getNextMsg srv = do 
     msg <- readNextLineFromServer srv
     return $ parseServerMessage msg
 
-sendMyChoiceToServer :: Handle -> PlayerChoice -> String -> IO ()
+sendMyChoiceToServer :: Socket -> PlayerChoice -> String -> IO ()
 sendMyChoiceToServer srv (Roll) msg = sendLineToServer srv $ show $ ROLL msg
 sendMyChoiceToServer srv (Save) msg = sendLineToServer srv $ show $ SAVE msg
    
@@ -77,7 +77,7 @@ not' :: WhosInTurn -> WhosInTurn
 not' Me         = OtherGuy
 not' OtherGuy   = Me
 
-communicationLoop :: LogicCallback -> Handle -> IO ()
+communicationLoop :: LogicCallback -> Socket -> IO ()
 communicationLoop logic server = do
     fstMsg <- getNextMsg server
     let whoStarts = detectWhoStarts fstMsg
@@ -122,7 +122,7 @@ communicationLoop logic server = do
             initOtherTurns (THRW p _) = [(Roll, p)]
                 
 
-mainLoop :: LogicCallback -> Handle -> IO ()
+mainLoop :: LogicCallback -> Socket -> IO ()
 mainLoop logic server = do
     putStrLn "Melde an..."
     msg <- authenticate server
