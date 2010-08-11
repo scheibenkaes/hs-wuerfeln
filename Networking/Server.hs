@@ -11,7 +11,7 @@ defaultPort :: String
 defaultPort = "3333"
 
 connectToServer :: String -> String -> IO Handle
-connectToServer url port = do
+connectToServer url port = withSocketsDo $ do
     sock <- openSocket 
     h <- socket2Handle sock
     return h
