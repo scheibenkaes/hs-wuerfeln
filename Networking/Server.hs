@@ -31,8 +31,9 @@ sendAuth conn name = do
 
 sendLineToServer :: Socket -> String -> IO ()
 sendLineToServer conn l = do
-    send conn $ l ++ "\n"
-    putStrLn  $ "Zum Server: " ++ l
+    l <- send conn $ l ++ "\n"
+    return ()
+    --putStrLn  $ "Zum Server: " ++ l
 
 readNextLineFromServer :: Socket -> IO String
 readNextLineFromServer srv = do

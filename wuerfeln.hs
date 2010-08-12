@@ -41,8 +41,10 @@ getNextMsg srv = do
     return $ parseServerMessage msg
 
 sendMyChoiceToServer :: Socket -> PlayerChoice -> String -> IO ()
-sendMyChoiceToServer srv (Roll) msg = sendLineToServer srv $ show $ ROLL msg
-sendMyChoiceToServer srv (Save) msg = sendLineToServer srv $ show $ SAVE msg
+sendMyChoiceToServer srv (Roll) msg = do 
+    sendLineToServer srv $ show $ ROLL msg
+sendMyChoiceToServer srv (Save) msg = do
+    sendLineToServer srv $ show $ SAVE msg
    
 checkForEndOfGame :: ServerMessage -> Bool
 checkForEndOfGame (WIN _ _ _)   = True
@@ -83,11 +85,19 @@ communicationLoop logic server = do
     gameLoop fstMsg whoStarts [] [] 
     where   gameLoop :: ServerMessage -> WhosInTurn -> [Moves] -> [Moves] -> IO ()
             gameLoop msg throwCountsFor myMoves otherMoves = do
+                putMsg msg
+                putStrLn $ "Wurf zählt für: " ++ (show throwCountsFor)
+                putStrLn "******"
+                putStrLn $ show myMoves
+                putStrLn $ show otherMoves
+                putStrLn "******"
                 case msg of
                     (WIN _ _ _)     -> gameEnded msg
                     (DEF _ _ _)     -> gameEnded msg
                     (TURN _ _ _)    -> do
-                                    let myChoice = logic myMoves otherMoves
+                                    let     myChoice = logic myMoves otherMoves
+                                    sendMyChoiceToServer server myChoice ""
+                                    putStrLn $ show myChoice
                                     nextMsg <- getNextMsg server
                                     gameLoop nextMsg (whoDoesTheNextPointsCountFor myChoice) myMoves otherMoves
                     (THRW 6 _)      -> do
@@ -102,10 +112,10 @@ communicationLoop logic server = do
                                     case throwCountsFor of
                                         Me -> do
                                             nextMsg <- getNextMsg server
-                                            gameLoop nextMsg Me (append6 myMoves) otherMoves
+                                            gameLoop nextMsg Me (appendToVeryLastElement p myMoves) otherMoves
                                         OtherGuy -> do
                                             nextMsg <- getNextMsg server
-                                            gameLoop nextMsg OtherGuy myMoves (append6 otherMoves)
+                                            gameLoop nextMsg OtherGuy myMoves (appendToVeryLastElement p otherMoves)
                     _               -> do
                                     putStrLn $ "Unerwartete Nachricht: " ++ (show  msg)
                                     nextMsg <- getNextMsg server
