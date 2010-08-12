@@ -55,80 +55,62 @@ gameEnded w@(DEF _ _ _) = ( putStrLn $ show w ) >> exitFailure
 gameEnded msg@_ = putStrLn $ show msg
 
 appendToVeryLastElement :: Int -> [Moves] -> [Moves]
+appendToVeryLastElement n [] = [[(Roll, n)]]
 appendToVeryLastElement n ms =
         let l = last ms
             i = init ms
         in i ++ [(l ++ [(Roll, n)])]
 
-updateMoves :: ServerMessage -> [Moves] -> [Moves]
-updateMoves (THRW p _) [] = [[(Roll, p)]]
-updateMoves (THRW 6 _) ms = 
-    let l = appendToVeryLastElement 6 ms
-    in l ++ [[]]
-updateMoves (THRW p@_ _) ms = appendToVeryLastElement p ms 
-updateMoves _ ms = ms
-
-
-updateMovesForActivePlayer :: ServerMessage -> WhosInTurn -> [Moves] -> [Moves] -> ([Moves],  [Moves])
-updateMovesForActivePlayer msg (Me) mine other = (updateMoves msg mine, other)
-updateMovesForActivePlayer msg (OtherGuy) mine other = (mine, updateMoves msg other)
-
 not' :: WhosInTurn -> WhosInTurn
 not' Me         = OtherGuy
 not' OtherGuy   = Me
+
+
+whoDoesTheNextPointsCountFor :: PlayerChoice -> WhosInTurn
+whoDoesTheNextPointsCountFor Roll = Me
+whoDoesTheNextPointsCountFor Save = OtherGuy
+
+append6 :: [Moves] -> [Moves]
+append6 mvs =
+    let updated = appendToVeryLastElement 6 mvs
+    in updated ++ [[]]
+
 
 communicationLoop :: LogicCallback -> Socket -> IO ()
 communicationLoop logic server = do
     fstMsg <- getNextMsg server
     let whoStarts = detectWhoStarts fstMsg
-    communicationLoop' fstMsg whoStarts [] []
-    where   communicationLoop' :: ServerMessage -> WhosInTurn -> [Moves] -> [Moves] -> IO ()
-            communicationLoop' lastMsg whoIsInTurn myMoves otherMoves = do
-                putMsg lastMsg
-                let newVals = updateMovesForActivePlayer lastMsg whoIsInTurn myMoves otherMoves
-                let myUpdatedMoves = fst newVals
-                let otherUpdatedMoves = snd newVals
-                if checkForEndOfGame lastMsg
-                    then 
-                        gameEnded lastMsg 
-                    else
-                        let continueWith = (continueWithNextMessage myUpdatedMoves otherUpdatedMoves)
-                        in case (lastMsg, whoIsInTurn) of
-                            ((TURN _ _ _), _) -> do
-                                let myChoice = logic myMoves otherMoves
-                                sendNextMoveToServer myChoice
-                                case myChoice of
-                                    Roll -> continueWith Me 
-                                    Save -> continueWith OtherGuy
-                            ((THRW 6 _), Me) -> do
-                                continueWith $ not' Me
-                            ((THRW _ _), Me) -> do
-                                let myChoice = logic myMoves otherMoves
-                                sendNextMoveToServer myChoice
-                                case myChoice of
-                                    Roll -> continueWith Me 
-                                    Save -> continueWith OtherGuy
-                            ((THRW 6 _), OtherGuy) -> do
-                                continueWith Me
-                            ((THRW p _), OtherGuy) -> do
-                                continueWith OtherGuy
-                                
-                        where   sendNextMoveToServer :: PlayerChoice -> IO ()
-                                sendNextMoveToServer c = do
-                                    sendMyChoiceToServer server c "xxx"
-                                    --putStrLn $ show c
-                                
-                                continueWithNextMessage my other inTurn = do
-                                --    hPutStrLn stderr $ show my
-                                --    hPutStrLn stderr $ show other
+    gameLoop fstMsg whoStarts [] [] 
+    where   gameLoop :: ServerMessage -> WhosInTurn -> [Moves] -> [Moves] -> IO ()
+            gameLoop msg throwCountsFor myMoves otherMoves = do
+                case msg of
+                    (WIN _ _ _)     -> gameEnded msg
+                    (DEF _ _ _)     -> gameEnded msg
+                    (TURN _ _ _)    -> do
+                                    let myChoice = logic myMoves otherMoves
                                     nextMsg <- getNextMsg server
-                                    communicationLoop' nextMsg inTurn my other
-
-            initOtherTurns :: ServerMessage -> Moves
-            initOtherTurns (TURN _ _ _) = []
-            initOtherTurns (THRW p _) = [(Roll, p)]
-                
-
+                                    gameLoop nextMsg (whoDoesTheNextPointsCountFor myChoice) myMoves otherMoves
+                    (THRW 6 _)      -> do
+                                    case throwCountsFor of
+                                        Me -> do
+                                            nextMsg <- getNextMsg server
+                                            gameLoop nextMsg (not' Me) (append6 myMoves) otherMoves
+                                        OtherGuy -> do
+                                            nextMsg <- getNextMsg server
+                                            gameLoop nextMsg (not' OtherGuy) myMoves (append6 otherMoves)
+                    (THRW p _)      -> do
+                                    case throwCountsFor of
+                                        Me -> do
+                                            nextMsg <- getNextMsg server
+                                            gameLoop nextMsg Me (append6 myMoves) otherMoves
+                                        OtherGuy -> do
+                                            nextMsg <- getNextMsg server
+                                            gameLoop nextMsg OtherGuy myMoves (append6 otherMoves)
+                    _               -> do
+                                    putStrLn $ "Unerwartete Nachricht: " ++ (show  msg)
+                                    nextMsg <- getNextMsg server
+                                    gameLoop nextMsg  throwCountsFor myMoves otherMoves
+                                    
 mainLoop :: LogicCallback -> Socket -> IO ()
 mainLoop logic server = do
     putStrLn "Melde an..."
