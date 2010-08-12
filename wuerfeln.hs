@@ -95,6 +95,8 @@ communicationLoop logic server = do
     where   gameLoop :: ServerMessage -> WhosInTurn -> [Moves] -> [Moves] -> IO ()
             gameLoop msg throwCountsFor myMoves otherMoves = do
                 putMsg msg
+                --putStrLn $ show myMoves
+                --putStrLn $ show otherMoves
                 case msg of
                     (WIN _ _ _)     -> gameEnded msg
                     (DEF _ _ _)     -> gameEnded msg

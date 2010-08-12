@@ -1,5 +1,5 @@
 build: 
-	ghc --make wuerfeln
+	ghc --make -O2 wuerfeln
         
 game: build
 	./wuerfeln
