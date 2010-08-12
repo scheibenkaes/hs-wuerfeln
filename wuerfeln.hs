@@ -1,6 +1,5 @@
 import System.IO
 import System.Exit
-import Network.Socket
 
 import Networking.Server
 import Networking.Messages
@@ -35,12 +34,12 @@ checkSignup msg =
     else 
         putStrLn "Verbindung verweigert!" >> exitFailure
 
-getNextMsg :: Socket -> IO ServerMessage
+getNextMsg :: ServerConnection -> IO ServerMessage
 getNextMsg srv = do 
     msg <- readNextLineFromServer srv
     return $ parseServerMessage msg
 
-sendMyChoiceToServer :: Socket -> PlayerChoice -> String -> IO ()
+sendMyChoiceToServer :: ServerConnection -> PlayerChoice -> String -> IO ()
 sendMyChoiceToServer srv (Roll) msg = do 
     sendLineToServer srv $ show $ ROLL msg
 sendMyChoiceToServer srv (Save) msg = do
@@ -87,7 +86,7 @@ appendEmptyListIfLastElementIsNotEmpty mvs =
             else
                 mvs ++ [[]]
 
-communicationLoop :: LogicCallback -> Socket -> IO ()
+communicationLoop :: LogicCallback -> ServerConnection -> IO ()
 communicationLoop logic server = do
     fstMsg <- getNextMsg server
     let whoStarts = detectWhoStarts fstMsg
@@ -95,8 +94,8 @@ communicationLoop logic server = do
     where   gameLoop :: ServerMessage -> WhosInTurn -> [Moves] -> [Moves] -> IO ()
             gameLoop msg throwCountsFor myMoves otherMoves = do
                 putMsg msg
-                --putStrLn $ show myMoves
-                --putStrLn $ show otherMoves
+                --hPutStrLn stderr $ show myMoves
+                --hPutStrLn stderr $ show otherMoves
                 case msg of
                     (WIN _ _ _)     -> gameEnded msg
                     (DEF _ _ _)     -> gameEnded msg
@@ -128,7 +127,7 @@ communicationLoop logic server = do
                                     nextMsg <- getNextMsg server
                                     gameLoop nextMsg  throwCountsFor myMoves otherMoves
                                     
-mainLoop :: LogicCallback -> Socket -> IO ()
+mainLoop :: LogicCallback -> ServerConnection -> IO ()
 mainLoop logic server = do
     putStrLn "Melde an..."
     msg <- authenticate server
