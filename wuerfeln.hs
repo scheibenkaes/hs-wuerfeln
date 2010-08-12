@@ -101,7 +101,6 @@ communicationLoop logic server = do
                     (TURN _ _ _)    -> do
                                     let     myChoice = logic myMoves otherMoves
                                     sendMyChoiceToServer server myChoice ""
-                                    putStrLn $ show myChoice
                                     nextMsg <- getNextMsg server
                                     gameLoop nextMsg (whoDoesTheNextPointsCountFor myChoice) (addAEmptyElementIfISave myChoice myMoves) otherMoves
                                     where   addAEmptyElementIfISave :: PlayerChoice -> [Moves] -> [Moves]
@@ -109,13 +108,12 @@ communicationLoop logic server = do
                                             addAEmptyElementIfISave _ mvs = mvs
                                             
                     (THRW 6 _)      -> do
+                                    nextMsg <- getNextMsg server
                                     case throwCountsFor of
                                         Me -> do
-                                            nextMsg <- getNextMsg server
-                                            gameLoop nextMsg (not' Me) (append6 myMoves) otherMoves
+                                            gameLoop nextMsg OtherGuy (append6 myMoves) otherMoves
                                         OtherGuy -> do
-                                            nextMsg <- getNextMsg server
-                                            gameLoop nextMsg (not' OtherGuy) myMoves (append6 otherMoves)
+                                            gameLoop nextMsg Me myMoves (append6 otherMoves)
                     (THRW p _)      -> do
                                     case throwCountsFor of
                                         Me -> do
