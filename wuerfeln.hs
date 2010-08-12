@@ -115,12 +115,11 @@ communicationLoop logic server = do
                                         OtherGuy -> do
                                             gameLoop nextMsg Me myMoves (append6 otherMoves)
                     (THRW p _)      -> do
+                                    nextMsg <- getNextMsg server
                                     case throwCountsFor of
                                         Me -> do
-                                            nextMsg <- getNextMsg server
                                             gameLoop nextMsg Me (appendToVeryLastElement p myMoves) otherMoves
                                         OtherGuy -> do
-                                            nextMsg <- getNextMsg server
                                             gameLoop nextMsg OtherGuy myMoves (appendToVeryLastElement p otherMoves)
                     _               -> do
                                     putStrLn $ "Unerwartete Nachricht: " ++ (show  msg)
