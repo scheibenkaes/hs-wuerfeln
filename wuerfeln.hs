@@ -1,4 +1,3 @@
-import System.IO
 import System.Exit
 
 import Networking.Server
@@ -45,11 +44,6 @@ sendMyChoiceToServer srv (Roll) msg = do
 sendMyChoiceToServer srv (Save) msg = do
     sendLineToServer srv $ show $ SAVE msg
    
-checkForEndOfGame :: ServerMessage -> Bool
-checkForEndOfGame (WIN _ _ _)   = True
-checkForEndOfGame (DEF _ _ _)   = True
-checkForEndOfGame _             = False 
-
 gameEnded :: ServerMessage -> IO ()
 gameEnded w@(WIN _ _ _) = ( putStrLn $ show w ) >> exitSuccess
 gameEnded w@(DEF _ _ _) = ( putStrLn $ show w ) >> exitFailure
@@ -62,10 +56,6 @@ appendToVeryLastElement n ms =
             i = init ms
         in i ++ [(l ++ [(Roll, n)])]
 
-not' :: WhosInTurn -> WhosInTurn
-not' Me         = OtherGuy
-not' OtherGuy   = Me
-
 
 whoDoesTheNextPointsCountFor :: PlayerChoice -> WhosInTurn
 whoDoesTheNextPointsCountFor Roll = Me
@@ -76,15 +66,6 @@ append6 mvs =
     let updated = appendToVeryLastElement 6 mvs
     in updated ++ [[]]
 
-appendEmptyListIfLastElementIsNotEmpty :: [Moves] -> [Moves]
-appendEmptyListIfLastElementIsNotEmpty mvs = 
-    let l = last mvs
-    in
-        if null l
-            then
-                mvs
-            else
-                mvs ++ [[]]
 
 communicationLoop :: LogicCallback -> ServerConnection -> IO ()
 communicationLoop logic server = do
