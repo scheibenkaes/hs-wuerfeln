@@ -77,16 +77,24 @@ append6 mvs =
     let updated = appendToVeryLastElement 6 mvs
     in updated ++ [[]]
 
+appendEmptyListIfLastElementIsNotEmpty :: [Moves] -> [Moves]
+appendEmptyListIfLastElementIsNotEmpty mvs = 
+    let l = last mvs
+    in
+        if null l
+            then
+                mvs
+            else
+                mvs ++ [[]]
 
 communicationLoop :: LogicCallback -> Socket -> IO ()
 communicationLoop logic server = do
     fstMsg <- getNextMsg server
     let whoStarts = detectWhoStarts fstMsg
-    gameLoop fstMsg whoStarts [] [] 
+    gameLoop fstMsg whoStarts [[]] [[]]
     where   gameLoop :: ServerMessage -> WhosInTurn -> [Moves] -> [Moves] -> IO ()
             gameLoop msg throwCountsFor myMoves otherMoves = do
                 putMsg msg
-                putStrLn $ "Wurf zählt für: " ++ (show throwCountsFor)
                 putStrLn "******"
                 putStrLn $ show myMoves
                 putStrLn $ show otherMoves
@@ -99,7 +107,11 @@ communicationLoop logic server = do
                                     sendMyChoiceToServer server myChoice ""
                                     putStrLn $ show myChoice
                                     nextMsg <- getNextMsg server
-                                    gameLoop nextMsg (whoDoesTheNextPointsCountFor myChoice) myMoves otherMoves
+                                    gameLoop nextMsg (whoDoesTheNextPointsCountFor myChoice) (addAEmptyElementIfISave myChoice myMoves) otherMoves
+                                    where   addAEmptyElementIfISave :: PlayerChoice -> [Moves] -> [Moves]
+                                            addAEmptyElementIfISave (Save) mvs = mvs ++ [[]]
+                                            addAEmptyElementIfISave _ mvs = mvs
+                                            
                     (THRW 6 _)      -> do
                                     case throwCountsFor of
                                         Me -> do
