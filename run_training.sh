@@ -1,6 +1,7 @@
 #! /bin/bash
 
 make
+echo "" > log.txt
 
 for i in {1..10}
 do
