@@ -1,12 +1,14 @@
 #! /bin/bash
 
-make
-echo "" > log.txt
+logfile=$1
 
-for i in {1..10}
+make
+echo "" > "$logfile"
+
+for i in {1..200}
 do
-    ./wuerfeln >> log.txt
-    echo "*******************************************" >> log.txt
+    ./wuerfeln >> "$logfile"
+    echo "*******************************************" >> "$logfile"
     sleep 5
 done
 
