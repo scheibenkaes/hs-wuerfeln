@@ -34,7 +34,7 @@ breakAfterPoints own other =
     let curMv = currentMoves own
         points = pointsOfMoves curMv
     in 
-        case points >= 9 of
+        case points >= 10 of
             True -> Save
             _ -> Roll
 
