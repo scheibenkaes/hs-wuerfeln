@@ -19,6 +19,7 @@ import System.Exit
 import Networking.Server
 import Networking.Messages
 import Game.Logic
+import Game.LogicProxy
 
 appName :: String
 appName = "hs-wuerfeln"
