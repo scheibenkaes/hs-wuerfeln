@@ -24,7 +24,7 @@ import Game.Logic
 getLogic :: Maybe String -> LogicCallback
 getLogic log =
     case log of
-        Just "1"     -> stupidLogic
-        _       -> breakAfterPoints
+        Just "1"    -> stupidLogic
+        _           -> breakAfterPoints
 
 

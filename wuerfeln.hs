@@ -14,6 +14,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -}
+import System.Environment
 import System.Exit
 
 import Networking.Server
@@ -141,6 +142,12 @@ mainLoop logic server = do
 
 main :: IO () 
 main = do
+    args <- getArgs
+    let logic = getLogic $ fromArgs args
     conn <- connectToServer defaultServer defaultPort
-    mainLoop breakAfterPoints conn
+    mainLoop logic conn
+    where
+        fromArgs :: [String] -> Maybe String
+        fromArgs []     = Nothing
+        fromArgs xs     = Just $ xs !! 0
 
