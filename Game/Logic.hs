@@ -26,8 +26,8 @@ type Moves = [Move]
 
 type LogicCallback = ([Moves] -> [Moves] -> PlayerChoice)
 
-stupidLogic :: LogicCallback
-stupidLogic own other = Roll
+keepRolling :: LogicCallback
+keepRolling own other = Roll
 
 breakAfterPoints :: LogicCallback
 breakAfterPoints own other =
@@ -37,6 +37,24 @@ breakAfterPoints own other =
         case points >= 10 of
             True -> Save
             _ -> Roll
+
+moderateAggressive :: LogicCallback
+moderateAggressive own other =
+    let myPoints        = sumOfPoints own
+        otherPoints     = sumOfPoints other
+        myPointsLeft    = maxPoints - myPoints
+        otherPointsLeft = maxPoints - otherPoints
+        amIInRange      = inCloseRange myPointsLeft
+        otherInRange    = inCloseRange otherPointsLeft
+    in  
+        if amIInRange || otherInRange
+            then
+                keepRolling own other
+            else
+                breakAfterPoints own other
+
+inCloseRange :: Int -> Bool
+inCloseRange p = p <= 6
 
 maxPoints :: Int
 maxPoints = 50

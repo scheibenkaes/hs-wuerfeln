@@ -14,18 +14,23 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -}
-module Game.LogicProxy where
-
-import Maybe
+module Statistics where
 
 import Game.Logic
 
+countThrowsOfOnePlayer :: [Moves] -> Int
+countThrowsOfOnePlayer []     = 0
+countThrowsOfOnePlayer mvs    = length $ concat mvs
 
-getLogic :: Maybe String -> LogicCallback
-getLogic log =
-    case log of
-        Just "1"    -> keepRolling
-        Just "2"    -> breakAfterPoints
-        _           -> moderateAggressive
+countOccurenceOf :: Int -> Moves -> Int
+countOccurenceOf _ []   = 0
+countOccurenceOf p mvs  = length $ [y | (x, y) <- mvs, y == p]
+
+countOccurenceOfInCompleteGame :: Int -> [Moves] -> Int
+countOccurenceOfInCompleteGame _ []   = 0
+countOccurenceOfInCompleteGame _ [[]] = 0
+countOccurenceOfInCompleteGame p mvs =
+    let flat = concat mvs
+    in countOccurenceOf p flat
 
 
