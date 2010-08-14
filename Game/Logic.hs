@@ -32,8 +32,8 @@ keepRolling own other = Roll
 
 breakAfterPoints :: LogicCallback
 breakAfterPoints own other =
-    let curMv = currentMoves own
-        points = pointsOfMoves curMv
+    let curMv = currentRound own
+        points = pointsOfRound curMv
     in 
         case points >= 10 of
             True -> Save
@@ -41,8 +41,8 @@ breakAfterPoints own other =
 
 moderateAggressive :: LogicCallback
 moderateAggressive own other =
-    let myPoints        = sumOfPoints own
-        otherPoints     = sumOfPoints other
+    let myPoints        = sumOfAllCountingRounds own
+        otherPoints     = sumOfAllCountingRounds other
         myPointsLeft    = maxPoints - myPoints
         otherPointsLeft = maxPoints - otherPoints
         amIInRange      = inCloseRange myPointsLeft
@@ -66,34 +66,32 @@ notLegal = (==6)
 legal :: Integer -> Bool
 legal = (<6)
 
-onlyWithLegalPoints :: Moves -> Moves
+isCountingRound :: RoundResult -> Bool
+isCountingRound []    = False
+isCountingRound rr    =
+    let l = last rr
+    in legal l
+
+onlyWithLegalPoints :: GameResult -> GameResult
 onlyWithLegalPoints [] = []
-onlyWithLegalPoints mvs = filter (\t -> legal $ snd t) mvs
-    
+onlyWithLegalPoints gr = filter isCountingRound gr
 
-sumOfPoints :: [Moves] -> Integer
-sumOfPoints [] = 0
-sumOfPoints mvs = 
+sumOfAllCountingRounds :: GameResult -> Integer
+sumOfAllCountingRounds [] = 0
+sumOfAllCountingRounds mvs = 
     let  
-        toBeCounted = filter doesRoundCount mvs
-        throws = [p | m <- toBeCounted, (x, p) <- m]
-        countingThrows = filter legal throws
-    in sum countingThrows
+        toBeCounted = concat $ filter isCountingRound mvs
+    in sum toBeCounted
 
 
-currentMoves :: [Moves] -> Moves
-currentMoves [] = []
-currentMoves mvs = last mvs
+currentRound :: GameResult -> RoundResult
+currentRound [] = []
+currentRound mvs = last mvs
 
 
-pointsOfMoves :: Moves -> Integer
-pointsOfMoves [] = 0
-pointsOfMoves mvs = 
-    let leg = onlyWithLegalPoints mvs
-    in sumOfPoints [leg]
+pointsOfRound :: RoundResult -> Integer
+pointsOfRound [] = 0
+pointsOfRound mvs = 
+    let leg = filter legal mvs
+    in sum leg
 
-doesRoundCount :: Moves -> Bool
-doesRoundCount []   = False
-doesRoundCount mvs  =
-    let (mv,p) = last mvs
-    in legal p
