@@ -21,10 +21,11 @@ data PlayerChoice =
     | Save 
     deriving (Eq, Show)
 
-type Move = (PlayerChoice, Int)
-type Moves = [Move]
+type ThrowResult    = Integer
+type RoundResult    = [ThrowResult]
+type GameResult     = [RoundResult]
 
-type LogicCallback = ([Moves] -> [Moves] -> PlayerChoice)
+type LogicCallback = (GameResult -> GameResult -> PlayerChoice)
 
 keepRolling :: LogicCallback
 keepRolling own other = Roll
@@ -53,16 +54,16 @@ moderateAggressive own other =
             else
                 breakAfterPoints own other
 
-inCloseRange :: Int -> Bool
+inCloseRange :: Integer -> Bool
 inCloseRange p = p <= 6
 
-maxPoints :: Int
+maxPoints :: Integer
 maxPoints = 50
 
-notLegal :: Int -> Bool
+notLegal :: Integer -> Bool
 notLegal = (==6)
 
-legal :: Int -> Bool
+legal :: Integer -> Bool
 legal = (<6)
 
 onlyWithLegalPoints :: Moves -> Moves
@@ -70,7 +71,7 @@ onlyWithLegalPoints [] = []
 onlyWithLegalPoints mvs = filter (\t -> legal $ snd t) mvs
     
 
-sumOfPoints :: [Moves] -> Int
+sumOfPoints :: [Moves] -> Integer
 sumOfPoints [] = 0
 sumOfPoints mvs = 
     let  
@@ -85,7 +86,7 @@ currentMoves [] = []
 currentMoves mvs = last mvs
 
 
-pointsOfMoves :: Moves -> Int
+pointsOfMoves :: Moves -> Integer
 pointsOfMoves [] = 0
 pointsOfMoves mvs = 
     let leg = onlyWithLegalPoints mvs
