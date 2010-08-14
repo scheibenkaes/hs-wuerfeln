@@ -64,7 +64,7 @@ sendMyChoiceToServer srv (Roll) msg = do
 sendMyChoiceToServer srv (Save) msg = do
     sendLineToServer srv $ show $ SAVE msg
    
-gameEnded :: ServerMessage -> [Moves] -> [Moves] -> IO ()
+gameEnded :: ServerMessage -> GameResult -> GameResult -> IO ()
 gameEnded w@(WIN _ _ _) own other =   (putStrLn $ show w) >> 
                             putStatisticsOfPlayer "mich" own >> 
                             putStatisticsOfPlayer "den Anderen" other  
@@ -73,19 +73,19 @@ gameEnded w@(DEF _ _ _) own other = ( putStrLn $ show w ) >>
                                     putStatisticsOfPlayer "den Anderen" other
 gameEnded msg@_ _ _  = putStrLn $ show msg
 
-appendToVeryLastElement :: Int -> [Moves] -> [Moves]
-appendToVeryLastElement n [[]] = [[(Roll, n)]]
+appendToVeryLastElement :: Integer -> GameResult -> GameResult
+appendToVeryLastElement n [[]] = [[n]]
 appendToVeryLastElement n ms =
         let l = last ms
             i = init ms
-        in i ++ [(l ++ [(Roll, n)])]
+        in i ++ [(l ++ [n])]
 
 
 whoDoesTheNextPointsCountFor :: PlayerChoice -> WhosInTurn
 whoDoesTheNextPointsCountFor Roll = Me
 whoDoesTheNextPointsCountFor Save = OtherGuy
 
-append6 :: [Moves] -> [Moves]
+append6 :: GameResult -> GameResult
 append6 mvs =
     let updated = appendToVeryLastElement 6 mvs
     in updated ++ [[]]
@@ -96,7 +96,7 @@ communicationLoop logic server = do
     fstMsg <- getNextMsg server
     let whoStarts = detectWhoStarts fstMsg
     gameLoop fstMsg whoStarts [[]] [[]]
-    where   gameLoop :: ServerMessage -> WhosInTurn -> [Moves] -> [Moves] -> IO ()
+    where   gameLoop :: ServerMessage -> WhosInTurn -> GameResult -> GameResult -> IO ()
             gameLoop msg throwCountsFor myMoves otherMoves = do
                 putMsg msg
                 hPutStrLn stderr $ show myMoves
@@ -109,7 +109,7 @@ communicationLoop logic server = do
                                     sendMyChoiceToServer server myChoice ""
                                     nextMsg <- getNextMsg server
                                     gameLoop nextMsg (whoDoesTheNextPointsCountFor myChoice) (addAEmptyElementIfISave myChoice myMoves) otherMoves
-                                    where   addAEmptyElementIfISave :: PlayerChoice -> [Moves] -> [Moves]
+                                    where   addAEmptyElementIfISave :: PlayerChoice -> GameResult -> GameResult
                                             addAEmptyElementIfISave (Save) mvs = mvs ++ [[]]
                                             addAEmptyElementIfISave _ mvs = mvs
                                             

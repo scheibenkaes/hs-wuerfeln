@@ -20,12 +20,6 @@ import System.IO
 
 import Game.Logic
 
-
-{-countOccurenceOf :: Int -> Moves -> Int
-countOccurenceOf _ []   = 0
-countOccurenceOf p mvs  = length $ [y | (x, y) <- mvs, y == p]
--}
-
 countOccurenceOf :: Integer -> RoundResult -> Int
 countOccurenceOf _ []   = 0
 countOccurenceOf p rr   = length $ [x | x <- rr, x == p]
