@@ -20,9 +20,6 @@ import System.IO
 
 import Game.Logic
 
-countThrowsOfOnePlayer :: [Moves] -> Int
-countThrowsOfOnePlayer []     = 0
-countThrowsOfOnePlayer mvs    = length $ concat mvs
 
 countOccurenceOf :: Int -> Moves -> Int
 countOccurenceOf _ []   = 0
