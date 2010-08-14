@@ -15,12 +15,13 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -}
 import System.Environment
-import System.Exit
+import System.IO
 
 import Networking.Server
 import Networking.Messages
 import Game.Logic
 import Game.LogicProxy
+import Statistics
 
 appName :: String
 appName = "hs-wuerfeln"
@@ -62,13 +63,17 @@ sendMyChoiceToServer srv (Roll) msg = do
 sendMyChoiceToServer srv (Save) msg = do
     sendLineToServer srv $ show $ SAVE msg
    
-gameEnded :: ServerMessage -> IO ()
-gameEnded w@(WIN _ _ _) = ( putStrLn $ show w ) >> exitSuccess
-gameEnded w@(DEF _ _ _) = ( putStrLn $ show w ) >> exitFailure
-gameEnded msg@_ = putStrLn $ show msg
+gameEnded :: ServerMessage -> [Moves] -> [Moves] -> IO ()
+gameEnded w@(WIN _ _ _) own other =   (putStrLn $ show w) >> 
+                            putStatisticsOfPlayer "mich" own >> 
+                            putStatisticsOfPlayer "den Anderen" other >> 
+gameEnded w@(DEF _ _ _) own other = ( putStrLn $ show w ) >>
+                                    putStatisticsOfPlayer "mich" own >> 
+                                    putStatisticsOfPlayer "den Anderen" other >> 
+gameEnded msg@_ _ _  = putStrLn $ show msg
 
 appendToVeryLastElement :: Int -> [Moves] -> [Moves]
-appendToVeryLastElement n [] = [[(Roll, n)]]
+appendToVeryLastElement n [[]] = [[(Roll, n)]]
 appendToVeryLastElement n ms =
         let l = last ms
             i = init ms
@@ -93,11 +98,11 @@ communicationLoop logic server = do
     where   gameLoop :: ServerMessage -> WhosInTurn -> [Moves] -> [Moves] -> IO ()
             gameLoop msg throwCountsFor myMoves otherMoves = do
                 putMsg msg
-                --hPutStrLn stderr $ show myMoves
-                --hPutStrLn stderr $ show otherMoves
+                hPutStrLn stderr $ show myMoves
+                hPutStrLn stderr $ show otherMoves
                 case msg of
-                    (WIN _ _ _)     -> gameEnded msg
-                    (DEF _ _ _)     -> gameEnded msg
+                    (WIN _ _ _)     -> gameEnded msg myMoves otherMoves
+                    (DEF _ _ _)     -> gameEnded msg myMoves otherMoves
                     (TURN _ _ _)    -> do
                                     let     myChoice = logic myMoves otherMoves
                                     sendMyChoiceToServer server myChoice ""

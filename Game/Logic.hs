@@ -73,7 +73,9 @@ onlyWithLegalPoints mvs = filter (\t -> legal $ snd t) mvs
 sumOfPoints :: [Moves] -> Int
 sumOfPoints [] = 0
 sumOfPoints mvs = 
-    let throws = [y | l <- mvs, (x, y) <- l]
+    let  
+        toBeCounted = filter doesRoundCount mvs
+        throws = [p | m <- toBeCounted, (x, p) <- m]
         countingThrows = filter legal throws
     in sum countingThrows
 
@@ -89,3 +91,8 @@ pointsOfMoves mvs =
     let leg = onlyWithLegalPoints mvs
     in sumOfPoints [leg]
 
+doesRoundCount :: Moves -> Bool
+doesRoundCount []   = False
+doesRoundCount mvs  =
+    let (mv,p) = last mvs
+    in legal p

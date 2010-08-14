@@ -16,6 +16,8 @@
 -}
 module Statistics where
 
+import System.IO
+
 import Game.Logic
 
 countThrowsOfOnePlayer :: [Moves] -> Int
@@ -32,5 +34,19 @@ countOccurenceOfInCompleteGame _ [[]] = 0
 countOccurenceOfInCompleteGame p mvs =
     let flat = concat mvs
     in countOccurenceOf p flat
+
+
+putStatisticsOfPlayer :: String -> [Moves] -> IO ()
+putStatisticsOfPlayer who mvs = do
+    putStrLn "****************************************"
+    putStrLn $ "Ergebnisse für: " ++ who
+    putStrLn $ "Gesamtpunkte:\t" ++ (show $ sumOfPoints mvs)
+    putStrLn "****************************************"
+    putStrLn $ "Die 1:\t\t\t" ++ show (countOccurenceOfInCompleteGame 1 mvs) ++ "x"
+    putStrLn $ "Die 2:\t\t\t" ++ show (countOccurenceOfInCompleteGame 2 mvs) ++ "x"
+    putStrLn $ "Die 3:\t\t\t" ++ show (countOccurenceOfInCompleteGame 3 mvs) ++ "x"
+    putStrLn $ "Die 4:\t\t\t" ++ show (countOccurenceOfInCompleteGame 4 mvs) ++ "x"
+    putStrLn $ "Die 5:\t\t\t" ++ show (countOccurenceOfInCompleteGame 5 mvs) ++ "x"
+    putStrLn $ "Die 6:\t\t\t" ++ show (countOccurenceOfInCompleteGame 6 mvs) ++ "x"
 
 
