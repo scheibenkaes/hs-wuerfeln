@@ -21,11 +21,17 @@ import System.IO
 import Game.Logic
 
 
-countOccurenceOf :: Int -> Moves -> Int
+{-countOccurenceOf :: Int -> Moves -> Int
 countOccurenceOf _ []   = 0
 countOccurenceOf p mvs  = length $ [y | (x, y) <- mvs, y == p]
+-}
 
-countOccurenceOfInCompleteGame :: Int -> [Moves] -> Int
+countOccurenceOf :: Integer -> RoundResult -> Int
+countOccurenceOf _ []   = 0
+countOccurenceOf p rr   = length $ [x | x <- rr, x == p]
+    
+
+countOccurenceOfInCompleteGame :: Integer -> GameResult -> Int
 countOccurenceOfInCompleteGame _ []   = 0
 countOccurenceOfInCompleteGame _ [[]] = 0
 countOccurenceOfInCompleteGame p mvs =
@@ -33,11 +39,11 @@ countOccurenceOfInCompleteGame p mvs =
     in countOccurenceOf p flat
 
 
-putStatisticsOfPlayer :: String -> [Moves] -> IO ()
+putStatisticsOfPlayer :: String -> GameResult -> IO ()
 putStatisticsOfPlayer who mvs = do
     putStrLn "****************************************"
     putStrLn $ "Ergebnisse für: " ++ who
-    putStrLn $ "Gesamtpunkte:\t" ++ (show $ sumOfPoints mvs)
+    putStrLn $ "Gesamtpunkte:\t" ++ (show $ sumOfAllCountingRounds mvs)
     putStrLn "****************************************"
     putStrLn $ "Die 1:\t\t\t" ++ show (countOccurenceOfInCompleteGame 1 mvs) ++ "x"
     putStrLn $ "Die 2:\t\t\t" ++ show (countOccurenceOfInCompleteGame 2 mvs) ++ "x"
