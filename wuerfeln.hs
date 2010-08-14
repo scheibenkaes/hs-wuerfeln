@@ -15,6 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -}
 import System.Environment
+import System.Exit
 import System.IO
 
 import Networking.Server
@@ -66,10 +67,10 @@ sendMyChoiceToServer srv (Save) msg = do
 gameEnded :: ServerMessage -> [Moves] -> [Moves] -> IO ()
 gameEnded w@(WIN _ _ _) own other =   (putStrLn $ show w) >> 
                             putStatisticsOfPlayer "mich" own >> 
-                            putStatisticsOfPlayer "den Anderen" other >> 
+                            putStatisticsOfPlayer "den Anderen" other  
 gameEnded w@(DEF _ _ _) own other = ( putStrLn $ show w ) >>
                                     putStatisticsOfPlayer "mich" own >> 
-                                    putStatisticsOfPlayer "den Anderen" other >> 
+                                    putStatisticsOfPlayer "den Anderen" other
 gameEnded msg@_ _ _  = putStrLn $ show msg
 
 appendToVeryLastElement :: Int -> [Moves] -> [Moves]
