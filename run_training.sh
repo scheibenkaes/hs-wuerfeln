@@ -2,12 +2,12 @@
 
 if [ -z $1 ]
 then
-    echo "Algo angeben!"
-    exit
+    algo='x'
+else
+    algo=$1
 fi
 
-algo=$1
-logfile="$1.log"
+logfile="$algo.log"
 
 make
 echo "" > "$logfile"
