@@ -18,10 +18,10 @@ import System.Environment
 import System.Exit
 import System.IO
 
-import Networking.Server
-import Networking.Messages
 import Game.Logic
 import Game.LogicProxy
+import Networking.Messages
+import Networking.Server
 import Statistics
 
 appName :: String
@@ -90,6 +90,9 @@ append6 mvs =
     let updated = appendToVeryLastElement 6 mvs
     in updated ++ [[]]
 
+appendAEmptyList :: GameResult -> GameResult
+appendAEmptyList gr | not $ null $ last gr  = gr ++ [[]]
+appendAEmptyList gr                         = gr
 
 communicationLoop :: LogicCallback -> ServerConnection -> IO ()
 communicationLoop logic server = do
@@ -108,9 +111,9 @@ communicationLoop logic server = do
                                     let     myChoice = logic myMoves otherMoves
                                     sendMyChoiceToServer server myChoice ""
                                     nextMsg <- getNextMsg server
-                                    gameLoop nextMsg (whoDoesTheNextPointsCountFor myChoice) (addAEmptyElementIfISave myChoice myMoves) otherMoves
+                                    gameLoop nextMsg (whoDoesTheNextPointsCountFor myChoice) (addAEmptyElementIfISave myChoice myMoves) (appendAEmptyList otherMoves)
                                     where   addAEmptyElementIfISave :: PlayerChoice -> GameResult -> GameResult
-                                            addAEmptyElementIfISave (Save) mvs = mvs ++ [[]]
+                                            addAEmptyElementIfISave (Save) mvs | not $ null (last mvs) = mvs ++ [[]]
                                             addAEmptyElementIfISave _ mvs = mvs
                                             
                     (THRW 6 _)      -> do
