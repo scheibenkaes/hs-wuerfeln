@@ -1,6 +1,13 @@
 #! /bin/bash
 
-logfile=$1
+if [ -z $1 ]
+then
+    echo "Algo angeben!"
+    exit
+fi
+
+algo=$1
+logfile="$1.log"
 
 make
 echo "" > "$logfile"
