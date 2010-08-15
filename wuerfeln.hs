@@ -113,8 +113,8 @@ communicationLoop logic server = do
                                     nextMsg <- getNextMsg server
                                     gameLoop nextMsg (whoDoesTheNextPointsCountFor myChoice) (addAEmptyElementIfISave myChoice myMoves) (appendAEmptyList otherMoves)
                                     where   addAEmptyElementIfISave :: PlayerChoice -> GameResult -> GameResult
-                                            addAEmptyElementIfISave (Save) mvs | not $ null (last mvs) = mvs ++ [[]]
-                                            addAEmptyElementIfISave _ mvs = mvs
+                                            addAEmptyElementIfISave (Save) mvs  = appendAEmptyList mvs
+                                            addAEmptyElementIfISave _ mvs       = mvs
                                             
                     (THRW 6 _)      -> do
                                     nextMsg <- getNextMsg server
