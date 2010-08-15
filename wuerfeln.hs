@@ -73,7 +73,7 @@ gameEnded w@(DEF _ _ _) own other = ( putStrLn $ show w ) >>
                                     putStatisticsOfPlayer "den Anderen" other
 gameEnded msg@_ _ _  = putStrLn $ show msg
 
-appendToVeryLastElement :: Integer -> GameResult -> GameResult
+appendToVeryLastElement :: Int -> GameResult -> GameResult
 appendToVeryLastElement n [[]] = [[n]]
 appendToVeryLastElement n ms =
         let l = last ms

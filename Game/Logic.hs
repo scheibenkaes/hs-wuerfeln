@@ -21,7 +21,7 @@ data PlayerChoice =
     | Save 
     deriving (Eq, Show)
 
-type ThrowResult    = Integer
+type ThrowResult    = Int
 type RoundResult    = [ThrowResult]
 type GameResult     = [RoundResult]
 
@@ -54,16 +54,16 @@ moderateAggressive own other =
             else
                 breakAfterPoints own other
 
-inCloseRange :: Integer -> Bool
+inCloseRange :: Int -> Bool
 inCloseRange p = p <= 6
 
-maxPoints :: Integer
+maxPoints :: Int
 maxPoints = 50
 
-notLegal :: Integer -> Bool
+notLegal :: Int -> Bool
 notLegal = (==6)
 
-legal :: Integer -> Bool
+legal :: Int -> Bool
 legal = (<6)
 
 isCountingRound :: RoundResult -> Bool
@@ -76,7 +76,7 @@ onlyWithLegalPoints :: GameResult -> GameResult
 onlyWithLegalPoints [] = []
 onlyWithLegalPoints gr = filter isCountingRound gr
 
-sumOfAllCountingRounds :: GameResult -> Integer
+sumOfAllCountingRounds :: GameResult -> Int
 sumOfAllCountingRounds [] = 0
 sumOfAllCountingRounds mvs = 
     let  
@@ -89,7 +89,7 @@ currentRound [] = []
 currentRound mvs = last mvs
 
 
-pointsOfRound :: RoundResult -> Integer
+pointsOfRound :: RoundResult -> Int
 pointsOfRound [] = 0
 pointsOfRound mvs = 
     let leg = filter legal mvs

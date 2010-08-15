@@ -20,12 +20,12 @@ import System.IO
 
 import Game.Logic
 
-countOccurenceOf :: Integer -> RoundResult -> Int
+countOccurenceOf :: Int -> RoundResult -> Int
 countOccurenceOf _ []   = 0
 countOccurenceOf p rr   = length $ [x | x <- rr, x == p]
     
 
-countOccurenceOfInCompleteGame :: Integer -> GameResult -> Int
+countOccurenceOfInCompleteGame :: Int -> GameResult -> Int
 countOccurenceOfInCompleteGame _ []   = 0
 countOccurenceOfInCompleteGame _ [[]] = 0
 countOccurenceOfInCompleteGame p mvs =

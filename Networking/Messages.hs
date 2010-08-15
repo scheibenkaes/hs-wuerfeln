@@ -20,9 +20,9 @@ import Data.List
 
 type Version = String
 type Message = String
-type MyPoints = Integer
-type OtherPoints = Integer
-type Points = Integer
+type MyPoints = Int
+type OtherPoints = Int
+type Points = Int
 type Name = String
 
 data ServerMessage = 
@@ -48,11 +48,11 @@ instance Read ServerMessage where
                 readDeny xs = 
                     [(DENY $ unwords $ drop 1 xs, "")]
                 readThrw xs =
-                    [(THRW (read $ xs !! 1 :: Integer) (unwords $ drop 2 xs), "")]
+                    [(THRW (read $ xs !! 1 :: Int) (unwords $ drop 2 xs), "")]
                 read3PtMessage t xs =
                     let
                     rest = unwords $ drop 3 xs
-                    in [(t (read $ xs !! 1 :: Integer) (read $ xs !! 2 :: Integer) rest, "")]
+                    in [(t (read $ xs !! 1 :: Int) (read $ xs !! 2 :: Int) rest, "")]
                     
 
 instance Show ServerMessage where
