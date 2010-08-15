@@ -16,9 +16,10 @@
 -}
 module Networking.Server where 
 
+import Network.Socket
 import System.IO
 
-import Network.Socket
+import Networking.Messages
 
 defaultServer :: String
 defaultServer = "wettbewerb.linux-magazin.de"
@@ -61,9 +62,19 @@ sendLineToServer :: ServerConnection -> String -> IO ()
 sendLineToServer conn l = do
     hPutStrLn conn l
     return ()
-    --putStrLn  $ "Zum Server: " ++ l
 
 readNextLineFromServer :: ServerConnection -> IO String
 readNextLineFromServer srv = do
     line <- hGetLine srv
     return line
+
+
+putMsg :: ServerMessage -> IO ()
+putMsg msg = 
+    putStrLn $ show msg 
+
+
+getNextMsg :: ServerConnection -> IO ServerMessage
+getNextMsg srv = do 
+    msg <- readNextLineFromServer srv
+    return $ parseServerMessage msg

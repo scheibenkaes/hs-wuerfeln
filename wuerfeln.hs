@@ -27,10 +27,6 @@ import Statistics
 appName :: String
 appName = "hs-wuerfeln"
 
-putMsg :: ServerMessage -> IO ()
-putMsg msg = 
-    putStrLn $ show msg 
-
 data WhosInTurn = 
       Me 
     | OtherGuy
@@ -40,7 +36,6 @@ detectWhoStarts :: ServerMessage -> WhosInTurn
 detectWhoStarts (TURN _ _ _) = Me
 detectWhoStarts (_) = OtherGuy
     
-
 didSignupSucceed :: ServerMessage -> Bool
 didSignupSucceed (HELO _ _) = True
 didSignupSucceed (_) = False
@@ -53,22 +48,16 @@ checkSignup msg =
     else 
         putStrLn "Verbindung verweigert!" >> exitFailure
 
-getNextMsg :: ServerConnection -> IO ServerMessage
-getNextMsg srv = do 
-    msg <- readNextLineFromServer srv
-    return $ parseServerMessage msg
 
 sendMyChoiceToServer :: ServerConnection -> PlayerChoice -> String -> IO ()
-sendMyChoiceToServer srv (Roll) msg = do 
-    sendLineToServer srv $ show $ ROLL msg
-sendMyChoiceToServer srv (Save) msg = do
-    sendLineToServer srv $ show $ SAVE msg
+sendMyChoiceToServer srv (Roll) msg = do sendLineToServer srv $ show $ ROLL msg
+sendMyChoiceToServer srv (Save) msg = do sendLineToServer srv $ show $ SAVE msg
    
 gameEnded :: ServerMessage -> GameResult -> GameResult -> IO ()
-gameEnded w@(WIN _ _ _) own other =   (putStrLn $ show w) >> 
+gameEnded w@(WIN _ _ _) own other =
                             putStatisticsOfPlayer "mich" own >> 
                             putStatisticsOfPlayer "den Anderen" other  
-gameEnded w@(DEF _ _ _) own other = ( putStrLn $ show w ) >>
+gameEnded w@(DEF _ _ _) own other =
                                     putStatisticsOfPlayer "mich" own >> 
                                     putStatisticsOfPlayer "den Anderen" other
 gameEnded msg@_ _ _  = putStrLn $ show msg
@@ -102,8 +91,8 @@ communicationLoop logic server = do
     where   gameLoop :: ServerMessage -> WhosInTurn -> GameResult -> GameResult -> IO ()
             gameLoop msg throwCountsFor myMoves otherMoves = do
                 putMsg msg
-                hPutStrLn stderr $ show myMoves
-                hPutStrLn stderr $ show otherMoves
+--                hPutStrLn stderr $ show myMoves
+--                hPutStrLn stderr $ show otherMoves
                 case msg of
                     (WIN _ _ _)     -> gameEnded msg myMoves otherMoves
                     (DEF _ _ _)     -> gameEnded msg myMoves otherMoves
