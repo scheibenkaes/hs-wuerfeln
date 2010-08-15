@@ -28,10 +28,10 @@ type GameResult     = [RoundResult]
 type LogicCallback = (GameResult -> GameResult -> PlayerChoice)
 
 keepRolling :: LogicCallback
-keepRolling own other = Roll
+keepRolling _ _ = Roll
 
 breakAfterPoints :: LogicCallback
-breakAfterPoints own other =
+breakAfterPoints own _ =
     let curMv = currentRound own
         points = pointsOfRound curMv
     in 
