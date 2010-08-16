@@ -30,6 +30,11 @@ type LogicCallback = (GameResult -> GameResult -> PlayerChoice)
 keepRolling :: LogicCallback
 keepRolling _ _ = Roll
 
+breakAfterThrows :: LogicCallback
+breakAfterThrows own _ | (length $ last own) == 4 = Save
+breakAfterThrows _ _                            = Roll
+    
+
 breakAfterPoints :: LogicCallback
 breakAfterPoints own _ =
     let curMv = currentRound own
@@ -38,6 +43,7 @@ breakAfterPoints own _ =
         case points >= 10 of
             True -> Save
             _ -> Roll
+
 
 moderateAggressive :: LogicCallback
 moderateAggressive own other =
@@ -52,7 +58,7 @@ moderateAggressive own other =
             then
                 keepRolling own other
             else
-                breakAfterPoints own other
+                breakAfterThrows own other
 
 inCloseRange :: Int -> Bool
 inCloseRange p = p <= 6
