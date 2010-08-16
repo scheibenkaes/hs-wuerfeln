@@ -106,3 +106,23 @@ pointsOfRound mvs =
     let leg = filter legal mvs
     in sum leg
 
+appendToVeryLastElement :: Int -> GameResult -> GameResult
+appendToVeryLastElement n [[]] = [[n]]
+appendToVeryLastElement n ms =
+        let l = last ms
+            i = init ms
+        in i ++ [(l ++ [n])]
+
+
+whoDoesTheNextPointsCountFor :: PlayerChoice -> WhosInTurn
+whoDoesTheNextPointsCountFor Roll = Me
+whoDoesTheNextPointsCountFor Save = OtherGuy
+
+append6 :: GameResult -> GameResult
+append6 mvs =
+    let updated = appendToVeryLastElement 6 mvs
+    in updated ++ [[]]
+
+appendAEmptyList :: GameResult -> GameResult
+appendAEmptyList gr | not $ null $ last gr  = gr ++ [[]]
+appendAEmptyList gr                         = gr
