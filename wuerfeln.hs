@@ -54,8 +54,8 @@ gameEnded w@(WIN _ _ _) own other =
                             putStatisticsOfPlayer "mich" own >> 
                             putStatisticsOfPlayer "den Anderen" other  
 gameEnded w@(DEF _ _ _) own other =
-                                    putStatisticsOfPlayer "mich" own >> 
-                                    putStatisticsOfPlayer "den Anderen" other
+                            putStatisticsOfPlayer "mich" own >> 
+                            putStatisticsOfPlayer "den Anderen" other
 gameEnded msg@_ _ _  = putStrLn $ show msg
 
 
