@@ -27,10 +27,6 @@ import Statistics
 appName :: String
 appName = "hs-wuerfeln"
 
-data WhosInTurn = 
-      Me 
-    | OtherGuy
-    deriving (Show, Eq)
 
 detectWhoStarts :: ServerMessage -> WhosInTurn
 detectWhoStarts (TURN _ _ _) = Me

@@ -21,6 +21,11 @@ data PlayerChoice =
     | Save 
     deriving (Eq, Show)
 
+data WhosInTurn = 
+      Me 
+    | OtherGuy
+    deriving (Show, Eq)
+
 type ThrowResult    = Int
 type RoundResult    = [ThrowResult]
 type GameResult     = [RoundResult]
