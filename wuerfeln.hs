@@ -25,7 +25,7 @@ import Networking.Server
 import Statistics
 
 appName :: String
-appName = "johnnybravo"
+appName = "olddice"
 
 
 detectWhoStarts :: ServerMessage -> WhosInTurn
