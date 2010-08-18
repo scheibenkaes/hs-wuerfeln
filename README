@@ -9,7 +9,7 @@ libghc6-parsec2-dev
 
 Möglicher Aufruf:
 
-`sudo apt-get ghc6 libghc6-network-dev libghc6-parsec2-dev`
+`sudo apt-get install ghc6 libghc6-network-dev libghc6-parsec2-dev`
 
 
 Erstellen des Programms
