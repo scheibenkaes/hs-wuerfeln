@@ -14,6 +14,8 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -}
+import Data.Maybe (fromMaybe)
+import System.Console.GetOpt
 import System.Environment
 import System.Exit
 import System.IO
@@ -114,9 +116,29 @@ mainLoop logic server = do
             let msg = read str :: ServerMessage
             return msg
 
+data Flag = 
+      Logic     String
+    | Server    String
+    | Port      String
+    deriving Show
+
+options :: [OptDescr Flag]
+options = 
+    [ 
+        Option ['s'] ["server"] (OptArg serv "SERVER")  "Server address",
+        Option ['p'] ["port"]   (OptArg prt "PORT")     "Port number"
+    ]
+    where   serv, prt :: Maybe String -> Flag
+            serv    = Server . fromMaybe defaultServer
+            prt     = Port . fromMaybe defaultPort
+
 main :: IO () 
 main = do
     args <- getArgs
+    let (opts, nopts, errs) = getOpt RequireOrder options args
+    print $ opts !! 1
+    print $ nopts !! 0
+    {-
     let logic = getLogic $ fromArgs args
     conn <- connectToServer defaultServer defaultPort
     mainLoop logic conn
@@ -124,4 +146,4 @@ main = do
         fromArgs :: [String] -> Maybe String
         fromArgs []     = Nothing
         fromArgs xs     = Just $ xs !! 0
-
+-}
