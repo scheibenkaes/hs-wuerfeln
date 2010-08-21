@@ -129,21 +129,24 @@ options =
         Option ['p'] ["port"]   (OptArg prt "PORT")     "Port number"
     ]
     where   serv, prt :: Maybe String -> Flag
-            serv    = Server . fromMaybe defaultServer
-            prt     = Port . fromMaybe defaultPort
+            serv    = Server    . fromMaybe defaultServer
+            prt     = Port      . fromMaybe defaultPort
 
 main :: IO () 
 main = do
     args <- getArgs
     let (opts, nopts, errs) = getOpt RequireOrder options args
-    print $ opts !! 1
-    print $ nopts !! 0
-    {-
     let logic = getLogic $ fromArgs args
-    conn <- connectToServer defaultServer defaultPort
+    print $ opts !! 0
+    print $ srvAddr $ opts !! 0
+    conn <- connectToServer (srvAddr (opts !! 0)) defaultPort
     mainLoop logic conn
     where
         fromArgs :: [String] -> Maybe String
         fromArgs []     = Nothing
         fromArgs xs     = Just $ xs !! 0
--}
+
+        srvAddr :: Flag -> String
+        srvAddr (Server s) = s
+            
+
