@@ -16,16 +16,13 @@
 -}
 module Game.LogicProxy where
 
-import Maybe
-
 import Game.Logic
 
-
-getLogic :: Maybe String -> LogicCallback
+getLogic :: String -> LogicCallback
 getLogic log =
     case log of
-        Just "1"    -> keepRolling
-        Just "2"    -> breakAfterPoints
-        _           -> moderateAggressive
+        "1"    -> keepRolling
+        "2"    -> breakAfterPoints
+        _      -> moderateAggressive
 
 

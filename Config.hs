@@ -25,7 +25,7 @@ data Config = Config {
     , server    :: String
     , port      :: String
     , name      :: String
-}
+} deriving Show
 
 defaultConfig = Config {
       logic     = "x"
@@ -50,8 +50,14 @@ getConfig :: IO Config
 getConfig = do
     args <- getArgs
     let (opts, nopts, errs) = getOpt Permute options args
-    print opts
-    let logic = getLogic $ fromArgs nopts
-        name = optName $ opts !! 0
-        srv  = optServ $ opts !! 1
-        port = optPort $ opts !! 2
+        cfg = updateDefCfgWithParams opts defaultConfig
+    return cfg
+
+    where   updateDefCfgWithParams :: [Flag] -> Config -> Config
+            updateDefCfgWithParams (x:xs) c = 
+                case x of
+                    (Server s)  -> updateDefCfgWithParams  xs (c {server = s})
+                    (Port   p)  -> updateDefCfgWithParams  xs (c {port = p})
+                    (Name   n)  -> updateDefCfgWithParams  xs (c {name = n})
+                    _           -> c
+            updateDefCfgWithParams [] c     = c

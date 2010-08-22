@@ -113,8 +113,8 @@ mainLoop name logic server = do
 main :: IO () 
 main = do
     cfg <- getConfig
-    conn <- connectToServer srv port
-    mainLoop name logic conn
+    conn <- connectToServer (server cfg) (port cfg)
+    mainLoop (name cfg) (getLogic (logic cfg)) conn
     where
         fromArgs :: [String] -> Maybe String
         fromArgs []     = Nothing
