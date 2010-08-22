@@ -14,21 +14,15 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -}
-import Data.Maybe (fromMaybe)
-import System.Console.GetOpt
-import System.Environment
 import System.Exit
 import System.IO
 
+import Config
 import Game.Logic
 import Game.LogicProxy
 import Networking.Messages
 import Networking.Server
 import Statistics
-
-appName :: String
-appName = "olddice"
-
 
 detectWhoStarts :: ServerMessage -> WhosInTurn
 detectWhoStarts (TURN _ _ _) = Me
@@ -102,51 +96,39 @@ communicationLoop logic server = do
                                     nextMsg <- getNextMsg server
                                     gameLoop nextMsg  throwCountsFor myMoves otherMoves
                                     
-mainLoop :: LogicCallback -> ServerConnection -> IO ()
-mainLoop logic server = do
+mainLoop :: String -> LogicCallback -> ServerConnection -> IO ()
+mainLoop name logic server = do
     putStrLn "Melde an..."
-    msg <- authenticate server
+    msg <- authenticate 
     putMsg msg
     checkSignup msg
     communicationLoop logic server
     disconnectFromServer server
     where
-        authenticate conn = do
-            str <- sendAuth conn appName
+        authenticate = do
+            str <- sendAuth server name
             let msg = read str :: ServerMessage
             return msg
 
-data Flag = 
-      Logic     String
-    | Server    String
-    | Port      String
-    deriving Show
-
-options :: [OptDescr Flag]
-options = 
-    [ 
-        Option ['s'] ["server"] (OptArg serv "SERVER")  "Server address",
-        Option ['p'] ["port"]   (OptArg prt "PORT")     "Port number"
-    ]
-    where   serv, prt :: Maybe String -> Flag
-            serv    = Server    . fromMaybe defaultServer
-            prt     = Port      . fromMaybe defaultPort
-
 main :: IO () 
 main = do
-    args <- getArgs
-    let (opts, nopts, errs) = getOpt RequireOrder options args
-    let logic = getLogic $ fromArgs args
-    print $ opts !! 0
-    print $ srvAddr $ opts !! 0
-    conn <- connectToServer (srvAddr (opts !! 0)) defaultPort
-    mainLoop logic conn
+    cfg <- getConfig
+    conn <- connectToServer srv port
+    mainLoop name logic conn
     where
         fromArgs :: [String] -> Maybe String
         fromArgs []     = Nothing
         fromArgs xs     = Just $ xs !! 0
 
-        srvAddr :: Flag -> String
-        srvAddr (Server s) = s
-            
+        optServ, optPort, optName :: Flag -> String
+        optServ (Server s)  = s
+        optPort (Port s)    = s
+        optName (Name s)    = s
+
+        {-optVal obj (x:xs) std = 
+            case x of
+                (obj s) = s
+                (_)     = optVal obj xs std
+        optVal _ [] std = std
+-}
 

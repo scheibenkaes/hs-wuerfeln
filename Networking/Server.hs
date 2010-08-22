@@ -21,17 +21,10 @@ import System.IO
 
 import Networking.Messages
 
-defaultServer :: String
-defaultServer = "wettbewerb.linux-magazin.de"
-
-defaultPort :: String
-defaultPort = "3333"
-
 type ServerConnection = Handle
 
 disconnectFromServer :: ServerConnection -> IO ()
 disconnectFromServer s = hClose s
-
 
 connectToServer :: String -> String -> IO ServerConnection
 connectToServer url port = withSocketsDo $ do
