@@ -120,15 +120,3 @@ main = do
         fromArgs []     = Nothing
         fromArgs xs     = Just $ xs !! 0
 
-        optServ, optPort, optName :: Flag -> String
-        optServ (Server s)  = s
-        optPort (Port s)    = s
-        optName (Name s)    = s
-
-        {-optVal obj (x:xs) std = 
-            case x of
-                (obj s) = s
-                (_)     = optVal obj xs std
-        optVal _ [] std = std
--}
-
