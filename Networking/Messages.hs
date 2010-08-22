@@ -32,6 +32,7 @@ data ServerMessage =
     | THRW Points Message
     | DEF MyPoints OtherPoints Message
     | WIN MyPoints OtherPoints Message
+    | Unknown Message
     deriving (Eq)
 
 instance Read ServerMessage where
@@ -42,7 +43,7 @@ instance Read ServerMessage where
         | "THRW" `isPrefixOf` value = readThrw $ words value
         | "DEF" `isPrefixOf` value = read3PtMessage (DEF) (words value)
         | "WIN" `isPrefixOf` value = read3PtMessage (WIN) (words value)
-        | otherwise = []
+        | otherwise = [(Unknown value, "")]
         where   readHelo xs = 
                     [(HELO (xs !! 1) (unwords $ drop 2 xs), "")]
                 readDeny xs = 
@@ -57,12 +58,13 @@ instance Read ServerMessage where
 
 instance Show ServerMessage where
 -- TODO: funktion unwords nutzen
-    show (HELO v m) = "HELO " ++ v ++ " " ++ m
-    show (DENY m)   = "DENY " ++ m
-    show (TURN my other m) = "TURN " ++ show my ++ " " ++ show other ++ " " ++ m 
-    show (THRW p m) = "THRW " ++ show p ++ " " ++ m
-    show (DEF my other m) = "DEF " ++ show my ++ " " ++ show other ++ " " ++ m
-    show (WIN my other m) = "WIN " ++ show my ++ " " ++ show other ++ " " ++ m
+    show (HELO v m)         = "HELO " ++ v ++ " " ++ m
+    show (DENY m)           = "DENY " ++ m
+    show (TURN my other m)  = "TURN " ++ show my ++ " " ++ show other ++ " " ++ m 
+    show (THRW p m)         = "THRW " ++ show p ++ " " ++ m
+    show (DEF my other m)   = "DEF " ++ show my ++ " " ++ show other ++ " " ++ m
+    show (WIN my other m)   = "WIN " ++ show my ++ " " ++ show other ++ " " ++ m
+    show (Unknown m)        = m
 
 data ClientMessage = 
     AUTH Name Message
