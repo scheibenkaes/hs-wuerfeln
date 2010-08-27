@@ -95,7 +95,6 @@ mainLoop master gameState = do
     case handleIncomingConnection plCon gameState of
         (WaitingForTwoPlayers)                  -> mainLoop master WaitingForTwoPlayers
         waiting@(WaitingForAnotherPlayer p1)     -> do
-            putStrLn $ "Connected to: " ++ show (fst p1)
             putStrLn "Waiting for a second player."
             mainLoop master waiting
         (GameReadyToStart p1 p2)            -> do
