@@ -70,11 +70,25 @@ data ClientMessage =
     AUTH Name Message
     | ROLL Message
     | SAVE Message
+    | UnknownClientMessage   Message
 
 instance Show ClientMessage where
     show (AUTH n m) = "AUTH " ++ n ++ " " ++ m
     show (ROLL m) = "ROLL " ++ m
     show (SAVE m) = "SAVE " ++ m
+
+instance Read ClientMessage where
+    readsPrec _ value 
+        | "AUTH" `isPrefixOf` value = readAuth $ words value
+        | "ROLL" `isPrefixOf` value = [(ROLL "", "")] 
+        | "SAVE" `isPrefixOf` value = [(SAVE "", "")] 
+        | otherwise = [(UnknownClientMessage value, "")]
+        where readAuth ws = let name    = ws !! 1
+                                msg     = ""
+                            in [(AUTH name msg, "")]
+
+parseClientMessage :: String -> ClientMessage
+parseClientMessage msg = read msg :: ClientMessage
 
 parseServerMessage :: String -> ServerMessage
 parseServerMessage msg = read msg :: ServerMessage
