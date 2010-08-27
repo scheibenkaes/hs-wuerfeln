@@ -76,6 +76,7 @@ instance Show ClientMessage where
     show (AUTH n m) = "AUTH " ++ n ++ " " ++ m
     show (ROLL m) = "ROLL " ++ m
     show (SAVE m) = "SAVE " ++ m
+    show _  = "UnknownClientMessage!!!"
 
 instance Read ClientMessage where
     readsPrec _ value 

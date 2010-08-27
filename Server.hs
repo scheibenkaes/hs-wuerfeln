@@ -16,8 +16,16 @@
 -}
 module Main where
 
+import System.Environment (getArgs)
+
 import Server.Connectivity
+
+mainLoop :: Socket -> IO ()
+mainLoop master = do
+    
 
 main :: IO () 
 main = do
-    listenTo 3333
+    masterSock <- listenTo port
+    mainLoop masterSock
+    where port = "3333"
