@@ -97,7 +97,7 @@ runMatch' ps match = do
     let playerWhoIsInTurn   = firstPlayer match 
         otherPlayer         = secondPlayer match
 
-    sendTurnTo playerWhoIsInTurn otherPlayer
+    sendTurnTo (savePoints playerWhoIsInTurn ps) otherPlayer
     choice <- readNextClientMessage (connection playerWhoIsInTurn)
     case choice of
         (ROLL _) -> do
@@ -106,16 +106,17 @@ runMatch' ps match = do
             case dice of 
                 6   -> runMatch' [] (match { firstPlayer = otherPlayer, secondPlayer = playerWhoIsInTurn })
                 p   -> do
-                    let sumAfterRoll    = (points playerWhoIsInTurn) + p
+                    let sumAfterRoll    = (points playerWhoIsInTurn) + sum ps + p
                         winner          = sumAfterRoll >= 50
+                    print sumAfterRoll
                     case winner of
-                        True    -> return $ Result (match {firstPlayer = savePoints playerWhoIsInTurn, secondPlayer = otherPlayer})
+                        True    -> return $ Result (match {firstPlayer = playerWhoIsInTurn {points = sumAfterRoll}, secondPlayer = otherPlayer})
                         _       -> runMatch' (dice:ps) match
 
-        (SAVE _) -> runMatch' [] (match {firstPlayer = otherPlayer, secondPlayer = (savePoints playerWhoIsInTurn)})
+        (SAVE _) -> runMatch' [] (match {firstPlayer = otherPlayer, secondPlayer = savePoints playerWhoIsInTurn ps})
         _        -> error "Unknown message!"
 
     where
-        savePoints :: Player -> Player
-        savePoints p = p {points = (points p) + (sum ps)}
+        savePoints :: Player -> [Int] -> Player
+        savePoints p ps= p {points = (points p) + (sum ps)}
 
