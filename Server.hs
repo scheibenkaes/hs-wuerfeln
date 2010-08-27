@@ -43,9 +43,14 @@ sayHeloTo pl = do
 
 startMatch :: Player -> Player -> IO ()
 startMatch player1 player2 = do
+    putStrLn "Starting match..."
     sayHeloTo player1 
     sayHeloTo player2
 
+quitConnection :: String -> [Player] -> IO ()
+quitConnection _ [] = return ()
+quitConnection m (p:ps) = hPutStrLn h m >> hClose h >> quitConnection m ps
+    where h = connection p
 
 prepareMatch :: ClientConnection -> ClientConnection -> IO ()
 prepareMatch p1 p2 = do
@@ -61,12 +66,11 @@ prepareMatch p1 p2 = do
         _       -> quitConnection "Not all players did authenticate correctly." [fromJust player1, fromJust player2] 
     
     where   transformClientConnection :: Socket -> IO Handle
-            transformClientConnection s = socketToHandle s ReadWriteMode
+            transformClientConnection s = do
+                h <- socketToHandle s ReadWriteMode
+                hSetBuffering h LineBuffering
+                return h
 
-            quitConnection :: String -> [Player] -> IO ()
-            quitConnection _ [] = return ()
-            quitConnection m (p:ps) = hPutStrLn h m >> hClose h >> quitConnection m ps
-                where h = connection p
 
     
 readNextClientMessage :: Handle -> IO ClientMessage
