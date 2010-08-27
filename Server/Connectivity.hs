@@ -18,6 +18,9 @@
 module Server.Connectivity where
 
 import Network.Socket
+import System.IO
+
+import Networking.Messages
 
 listenTo :: String -> IO Socket
 listenTo port = withSocketsDo $ do
@@ -30,3 +33,6 @@ listenTo port = withSocketsDo $ do
         listen sock 6
         return sock
 
+sendToClient :: Handle -> ServerMessage -> IO ()
+sendToClient h msg = do
+    hPutStrLn h (show msg)

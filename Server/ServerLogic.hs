@@ -14,13 +14,14 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -}
-module ServerLogic where
+module Server.ServerLogic where
 
 import System.IO
 
 data Player = Player {
       name          :: String
     , connection    :: Handle
+    , points        :: Int
 }
 
 data Match = Match {
@@ -28,11 +29,11 @@ data Match = Match {
     , secondPlayer  :: Player
 }
 
-data Result = Result {
-}
-
+data Result = Result Match
+{-
 playMatch :: Player -> Player -> IO Result
 playMatch p1 p2 = do
-   turnTo p1 
-   msg <- nextClientMessageFrom p1
-    
+   --turnTo p1 
+   --msg <- nextClientMessageFrom p1
+   return Result $ Match p1 p2
+  -}  

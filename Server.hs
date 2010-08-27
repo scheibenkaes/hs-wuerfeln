@@ -17,10 +17,13 @@
 module Main where
 
 import Control.Concurrent (forkIO)
+import Data.Maybe
 import Network.Socket
 import System.IO
 
+import Networking.Messages
 import Server.Connectivity
+import Server.ServerLogic
 
 type ClientConnection   = (Socket, SockAddr)
 
@@ -30,9 +33,59 @@ data GameState   =
     | WaitingForTwoPlayers      
     deriving (Show)
 
+serverVersion :: String
+serverVersion = "0.1"
+
+sayHeloTo :: Player -> IO ()
+sayHeloTo pl = do
+    let helo = HELO serverVersion (name pl)
+    sendToClient (connection pl) helo
+
+startMatch :: Player -> Player -> IO ()
+startMatch player1 player2 = do
+    sayHeloTo player1 
+    sayHeloTo player2
+
+
 prepareMatch :: ClientConnection -> ClientConnection -> IO ()
 prepareMatch p1 p2 = do
     putStrLn "Start match"
+    hP1 <- transformClientConnection $ fst p1
+    hP2 <- transformClientConnection $ fst p2
+
+    player1 <- authenticateClient hP1
+    player2 <- authenticateClient hP2
+
+    case all isJust [player1, player2] of
+        True    -> startMatch (fromJust player1) (fromJust player2)
+        _       -> quitConnection "Not all players did authenticate correctly." [fromJust player1, fromJust player2] 
+    
+    where   transformClientConnection :: Socket -> IO Handle
+            transformClientConnection s = socketToHandle s ReadWriteMode
+
+            quitConnection :: String -> [Player] -> IO ()
+            quitConnection _ [] = return ()
+            quitConnection m (p:ps) = hPutStrLn h m >> hClose h >> quitConnection m ps
+                where h = connection p
+
+    
+readNextClientMessage :: Handle -> IO ClientMessage
+readNextClientMessage h = do
+    line <- hGetLine h
+    let msg = parseClientMessage line
+    return msg
+    
+
+authenticateClient :: Handle -> IO (Maybe Player)
+authenticateClient h = do
+    msg <- readNextClientMessage h
+    case msg of 
+        (AUTH n _) ->  return $ Just $ Player { 
+                              name = n
+                            , connection = h
+                            , points = 0
+                            }
+        _          ->  return Nothing
 
 mainLoop :: Socket -> GameState -> IO ()
 mainLoop master gameState = do
