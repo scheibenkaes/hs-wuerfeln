@@ -16,13 +16,13 @@
 -}
 module Main where
 
-import System.Environment (getArgs)
+import Network.Socket
 
 import Server.Connectivity
 
 mainLoop :: Socket -> IO ()
 mainLoop master = do
-    
+    return ()
 
 main :: IO () 
 main = do

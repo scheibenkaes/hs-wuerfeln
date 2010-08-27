@@ -15,18 +15,4 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -}
 
-module Server.Connectivity where
-
-import Network.Socket
-
-listenTo :: String -> IO Socket
-listenTo port = withSocketsDo $ do
-        addrInfos <-    getAddrInfo (Just (defaultHints {addrFlags = [AI_PASSIVE]}))
-                        Nothing (Just port)
-        let serverAddr = head addrInfos
-
-        sock <- socket (addrFamily serverAddr) Stream defaultProtocol
-        bindSocket sock (addrAddress serverAddr)
-        listen sock 6
-        return sock
 
