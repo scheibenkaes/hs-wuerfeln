@@ -108,7 +108,6 @@ runMatch' ps match = do
                 p   -> do
                     let sumAfterRoll    = (points playerWhoIsInTurn) + sum ps + p
                         winner          = sumAfterRoll >= 50
-                    print sumAfterRoll
                     case winner of
                         True    -> return $ Result (match {firstPlayer = playerWhoIsInTurn {points = sumAfterRoll}, secondPlayer = otherPlayer})
                         _       -> runMatch' (dice:ps) match
