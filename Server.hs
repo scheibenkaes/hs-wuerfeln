@@ -16,16 +16,46 @@
 -}
 module Main where
 
+import Control.Concurrent (forkIO)
 import Network.Socket
+import System.IO
 
 import Server.Connectivity
 
-mainLoop :: Socket -> IO ()
-mainLoop master = do
-    return ()
+type ClientConnection   = (Socket, SockAddr)
+
+data GameState   = 
+      GameReadyToStart          ClientConnection ClientConnection
+    | WaitingForAnotherPlayer   ClientConnection
+    | WaitingForTwoPlayers      
+    deriving (Show)
+
+prepareMatch :: ClientConnection -> ClientConnection -> IO ()
+prepareMatch p1 p2 = do
+    putStrLn "Start match"
+
+mainLoop :: Socket -> GameState -> IO ()
+mainLoop master gameState = do
+    plCon <- accept master
+    case handleIncomingConnection plCon gameState of
+        (WaitingForTwoPlayers)                  -> mainLoop master WaitingForTwoPlayers
+        waiting@(WaitingForAnotherPlayer p1)     -> do
+            putStrLn $ "Connected to: " ++ show (fst p1)
+            putStrLn "Waiting for a second player."
+            mainLoop master waiting
+        (GameReadyToStart p1 p2)            -> do
+            -- Start match
+            forkIO (prepareMatch p1 p2)
+            mainLoop master WaitingForTwoPlayers
+
+    where   handleIncomingConnection :: ClientConnection -> GameState -> GameState
+            handleIncomingConnection newConn WaitingForTwoPlayers           = WaitingForAnotherPlayer newConn
+            handleIncomingConnection newConn (WaitingForAnotherPlayer fst)  = GameReadyToStart fst newConn
+            handleIncomingConnection _ st    = error $ "Illegal state: " ++ show st
+                
 
 main :: IO () 
 main = do
     masterSock <- listenTo port
-    mainLoop masterSock
+    mainLoop masterSock WaitingForTwoPlayers
     where port = "3333"

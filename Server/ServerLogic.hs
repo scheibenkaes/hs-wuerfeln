@@ -14,5 +14,25 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -}
+module ServerLogic where
 
+import System.IO
 
+data Player = Player {
+      name          :: String
+    , connection    :: Handle
+}
+
+data Match = Match {
+      firstPlayer   :: Player
+    , secondPlayer  :: Player
+}
+
+data Result = Result {
+}
+
+playMatch :: Player -> Player -> IO Result
+playMatch p1 p2 = do
+   turnTo p1 
+   msg <- nextClientMessageFrom p1
+    
