@@ -46,6 +46,13 @@ startMatch player1 player2 = do
     putStrLn "Starting match..."
     sayHeloTo player1 
     sayHeloTo player2
+    starting <- detectWhoStarts player1 player2
+    let match = Match {
+          firstPlayer   = fst starting
+        , secondPlayer  = snd starting
+    }
+    result <- runMatch match
+    finishMatch result
 
 quitConnection :: String -> [Player] -> IO ()
 quitConnection _ [] = return ()
@@ -70,15 +77,6 @@ prepareMatch p1 p2 = do
                 h <- socketToHandle s ReadWriteMode
                 hSetBuffering h LineBuffering
                 return h
-
-
-    
-readNextClientMessage :: Handle -> IO ClientMessage
-readNextClientMessage h = do
-    line <- hGetLine h
-    let msg = parseClientMessage line
-    return msg
-    
 
 authenticateClient :: Handle -> IO (Maybe Player)
 authenticateClient h = do
