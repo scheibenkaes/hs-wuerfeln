@@ -5,7 +5,7 @@ game: build
 	./wuerfeln
 
 build-server:
-	ghc --make -o server Server
+	ghc --make -O2 -o server Server
 
 server: build-server
 	./server
