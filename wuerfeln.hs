@@ -55,9 +55,8 @@ gameEnded w@(DEF _ _ _) own other =
 gameEnded msg@_ _ _  = putStrLn $ show msg
 
 
-communicationLoop :: LogicCallback -> ServerConnection -> IO ()
-communicationLoop logic server = do
-    fstMsg <- getNextMsg server
+communicationLoop :: ServerMessage -> LogicCallback -> ServerConnection -> IO ()
+communicationLoop fstMsg logic server = do
     let whoStarts = detectWhoStarts fstMsg
     gameLoop fstMsg whoStarts [[]] [[]]
     where   gameLoop :: ServerMessage -> WhosInTurn -> GameResult -> GameResult -> IO ()
@@ -98,17 +97,20 @@ communicationLoop logic server = do
                                     
 mainLoop :: String -> LogicCallback -> ServerConnection -> IO ()
 mainLoop name logic server = do
-    putStrLn "Melde an..."
-    msg <- authenticate 
-    putMsg msg
-    checkSignup msg
-    communicationLoop logic server
-    disconnectFromServer server
-    where
-        authenticate = do
-            str <- sendAuth server name
-            let msg = read str :: ServerMessage
-            return msg
+    putStrLn "Warte auf HELO"
+    helo <- getNextMsg server
+    putMsg helo
+    case helo of
+        (HELO _ _)  -> do -- ... Erfolg .. AUTH senden
+            putStrLn "Melde an..."
+            sendAuth server name
+            firstMsg <- getNextMsg server
+            case firstMsg of
+                (DENY m)    -> putStrLn m >> exitFailure
+                _           -> do -- Mögen die Spiele beginnen
+                    communicationLoop firstMsg logic server
+                    disconnectFromServer server
+        (_)    -> putStrLn "Server sollte eigentlich ein HELO schicken ..." >> exitFailure
 
 main :: IO () 
 main = do

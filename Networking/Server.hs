@@ -45,12 +45,10 @@ connectToServer url port = withSocketsDo $ do
             hSetBuffering h LineBuffering
             return h 
 
-sendAuth :: ServerConnection -> String -> IO String
+sendAuth :: ServerConnection -> String -> IO ()
 sendAuth conn name = do
     let auth = AUTH name ""
     sendLineToServer conn $ show auth
-    s <- readNextLineFromServer conn
-    return s 
 
 sendLineToServer :: ServerConnection -> String -> IO ()
 sendLineToServer conn l = do
