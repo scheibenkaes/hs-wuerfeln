@@ -36,16 +36,14 @@ data GameState   =
 serverVersion :: String
 serverVersion = "0.1"
 
-sayHeloTo :: Player -> IO ()
+sayHeloTo :: Handle -> IO ()
 sayHeloTo pl = do
-    let helo = HELO serverVersion (name pl)
-    sendToClient (connection pl) helo
+    let helo = HELO serverVersion "On your marks"
+    sendToClient pl helo
 
 startMatch :: Player -> Player -> IO ()
 startMatch player1 player2 = do
     putStrLn "Starting match..."
-    sayHeloTo player1 
-    sayHeloTo player2
     starting <- detectWhoStarts player1 player2
     let match = Match {
           firstPlayer   = fst starting
@@ -64,6 +62,9 @@ prepareMatch p1 p2 = do
     putStrLn "Start match"
     hP1 <- transformClientConnection $ fst p1
     hP2 <- transformClientConnection $ fst p2
+
+    sayHeloTo hP1 
+    sayHeloTo hP2
 
     player1 <- authenticateClient hP1
     player2 <- authenticateClient hP2
