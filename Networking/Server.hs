@@ -47,7 +47,8 @@ connectToServer url port = withSocketsDo $ do
 
 sendAuth :: ServerConnection -> String -> IO String
 sendAuth conn name = do
-    sendLineToServer conn $ "AUTH " ++ name ++ " los gehts"
+    let auth = AUTH name ""
+    sendLineToServer conn $ show auth
     s <- readNextLineFromServer conn
     return s 
 
