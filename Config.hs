@@ -51,6 +51,7 @@ getConfig = do
     args <- getArgs
     let (opts, nopts, errs) = getOpt Permute options args
         cfg = updateDefCfgWithParams opts defaultConfig
+        cfgWLogic = updateLogic nopts cfg
     return cfg
 
     where   updateDefCfgWithParams :: [Flag] -> Config -> Config
@@ -61,3 +62,9 @@ getConfig = do
                     (Name   n)  -> updateDefCfgWithParams  xs (c {name = n})
                     _           -> c
             updateDefCfgWithParams [] c     = c
+
+            updateLogic :: [String] -> Config -> Config
+            updateLogic [] cfg = cfg
+            updateLogic ns cfg =
+                cfg { logic = ns !! 0 }
+                
