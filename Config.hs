@@ -52,7 +52,7 @@ getConfig = do
     let (opts, nopts, errs) = getOpt Permute options args
         cfg = updateDefCfgWithParams opts defaultConfig
         cfgWLogic = updateLogic nopts cfg
-    return cfg
+    return cfgWLogic
 
     where   updateDefCfgWithParams :: [Flag] -> Config -> Config
             updateDefCfgWithParams (x:xs) c = 
