@@ -57,13 +57,12 @@ instance Read ServerMessage where
                     
 
 instance Show ServerMessage where
--- TODO: funktion unwords nutzen
-    show (HELO v m)         = "HELO " ++ v ++ " " ++ m
-    show (DENY m)           = "DENY " ++ m
-    show (TURN my other m)  = "TURN " ++ show my ++ " " ++ show other ++ " " ++ m 
-    show (THRW p m)         = "THRW " ++ show p ++ " " ++ m
-    show (DEF my other m)   = "DEF " ++ show my ++ " " ++ show other ++ " " ++ m
-    show (WIN my other m)   = "WIN " ++ show my ++ " " ++ show other ++ " " ++ m
+    show (HELO v m)         = unwords ["HELO", v, m]
+    show (DENY m)           = unwords ["DENY", m]
+    show (TURN my other m)  = unwords ["TURN", show my, show other, m ]
+    show (THRW p m)         = unwords ["THRW", show p, m]
+    show (DEF my other m)   = unwords ["DEF", show my, show other, m]
+    show (WIN my other m)   = unwords ["WIN", show my, show other, m]
     show (Unknown m)        = m
 
 data ClientMessage = 
@@ -73,9 +72,9 @@ data ClientMessage =
     | UnknownClientMessage   Message
 
 instance Show ClientMessage where
-    show (AUTH n m) = "AUTH " ++ n ++ " " ++ m
-    show (ROLL m) = "ROLL " ++ m
-    show (SAVE m) = "SAVE " ++ m
+    show (AUTH n m) = unwords ["AUTH", n, m]
+    show (ROLL m)   = unwords ["ROLL", m]
+    show (SAVE m)   = unwords ["SAVE", m]
     show _  = "UnknownClientMessage!!!"
 
 instance Read ClientMessage where
