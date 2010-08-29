@@ -4,6 +4,9 @@ build:
 game: build
 	./wuerfeln
 
+local-game: build
+	./wuerfeln -s127.0.0.1
+
 build-server:
 	ghc --make -O2 -o server Server
 
