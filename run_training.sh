@@ -9,7 +9,7 @@ fi
 
 if [ -z $2 ]
 then
-    name=''
+    name='olddice'
 else
     name=$2
 fi
@@ -19,9 +19,9 @@ logfile="$algo.log"
 make
 echo "" > "$logfile"
 
-for i in {1..200}
+for i in {1..500}
 do
-    ./wuerfeln -s127.0.0.1 -n$name $algo >> "$logfile"
+    ./wuerfeln >> x.log
     echo "*******************************************" >> "$logfile"
 done
 

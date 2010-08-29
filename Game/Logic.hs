@@ -45,7 +45,7 @@ breakAfterPoints own _ =
     let curMv = currentRound own
         points = pointsOfRound curMv
     in 
-        case points >= 10 of
+        case points >= 15 of
             True -> Save
             _ -> Roll
 
@@ -63,7 +63,7 @@ moderateAggressive own other =
             then
                 keepRolling own other
             else
-                breakAfterThrows own other
+                breakAfterPoints own other
 
 inCloseRange :: Int -> Bool
 inCloseRange p = p <= 6
