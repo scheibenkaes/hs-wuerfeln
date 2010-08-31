@@ -32,7 +32,6 @@ printAllStats [] = putStrLn ""
 printAllStats (x:xs) = do
     print x 
     printAllStats xs
-    
 
 
 printStat :: [(Name, WinOrLose)] -> IO ()
@@ -50,11 +49,9 @@ resultsAgainst name rs = Stat name cntWin cntLose
     where   cntWin  = length $ filter (\(n, wl) -> n == name && wl == Win) rs
             cntLose = length $ filter (\(n, wl) -> n == name && wl == Lose) rs
 
-    
 
 main = do
     cont <- B.getContents 
     let ls = analyzeLines cont
     printStat ls
-
 
