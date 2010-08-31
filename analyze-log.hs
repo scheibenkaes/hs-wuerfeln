@@ -3,6 +3,7 @@ import qualified Data.Map as Map
 import Data.Maybe (catMaybes)
 import qualified Data.Set as Set
 import System.IO
+import Text.Printf
 
 import qualified Data.ByteString.Lazy.Char8 as B
 
@@ -10,7 +11,9 @@ type Name = B.ByteString
 type Result = (Name, WinOrLose)
 
 data Stat = Stat Name Int Int
-    deriving (Show)
+
+instance Show Stat where
+    show (Stat name m o) = printf "%s %d %d" (B.unpack name) m o
 
 data WinOrLose 
     = Win  
