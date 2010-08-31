@@ -18,3 +18,6 @@ clean:
 	rm -f **/*.o **/*.hi
 	rm wuerfeln
 	rm server
+
+analyzer:
+	ghc --make -o analyze analyze-log
