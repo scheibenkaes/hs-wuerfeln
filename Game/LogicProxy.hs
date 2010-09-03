@@ -19,8 +19,8 @@ module Game.LogicProxy where
 import Game.Logic
 
 getLogic :: String -> LogicCallback
-getLogic log =
-    case log of
+getLogic l =
+    case l of
         "1"    -> keepRolling
         "2"    -> breakAfterPoints
         _      -> moderateAggressive

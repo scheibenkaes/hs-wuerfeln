@@ -43,6 +43,7 @@ data Config = Config {
     , name      :: String
 } deriving Show
 
+defaultConfig :: Config
 defaultConfig = Config {
       logic     = "x"
     , server    = defaultServer
@@ -65,7 +66,7 @@ options =
 getConfig :: IO Config
 getConfig = do
     args <- getArgs
-    let (opts, nopts, errs) = getOpt Permute options args
+    let (opts, nopts, _) = getOpt Permute options args
         cfg = updateDefCfgWithParams opts defaultConfig
         cfgWLogic = updateLogic nopts cfg
     return cfgWLogic
