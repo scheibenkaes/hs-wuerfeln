@@ -49,8 +49,6 @@ communicationLoop fstMsg lgic servCon = do
     where   gameLoop :: ServerMessage -> WhosInTurn -> GameResult -> GameResult -> IO ()
             gameLoop msg throwCountsFor myMoves otherMoves = do
                 putMsg msg
---                hPutStrLn stderr $ show myMoves
---                hPutStrLn stderr $ show otherMoves
                 case msg of
                     (WIN _ _ _)     -> gameEnded msg myMoves otherMoves
                     (DEF _ _ _)     -> gameEnded msg myMoves otherMoves
