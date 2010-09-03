@@ -30,14 +30,14 @@ type ThrowResult    = Int
 type RoundResult    = [ThrowResult]
 type GameResult     = [RoundResult]
 
-type LogicCallback = (GameResult -> GameResult -> PlayerChoice)
+type LogicCallback = GameResult -> GameResult -> IO PlayerChoice
 
 keepRolling :: LogicCallback
-keepRolling _ _ = Roll
+keepRolling _ _ = return Roll
 
 breakAfterThrows :: LogicCallback
-breakAfterThrows own _ | (length $ last own) == 4 = Save
-breakAfterThrows _ _                            = Roll
+breakAfterThrows own _ | (length $ last own) == 4   = return Save
+breakAfterThrows _ _                                = return Roll
     
 
 breakAfterPoints :: LogicCallback
@@ -46,8 +46,8 @@ breakAfterPoints own _ =
         points = pointsOfRound curMv
     in 
         case points >= 15 of
-            True -> Save
-            _ -> Roll
+            True -> return Save
+            _ -> return Roll
 
 
 moderateAggressive :: LogicCallback

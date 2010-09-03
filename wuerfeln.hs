@@ -55,7 +55,7 @@ communicationLoop fstMsg lgic servCon = do
                     (WIN _ _ _)     -> gameEnded msg myMoves otherMoves
                     (DEF _ _ _)     -> gameEnded msg myMoves otherMoves
                     (TURN _ _ _)    -> do
-                                    let     myChoice = lgic myMoves otherMoves
+                                    myChoice <- lgic myMoves otherMoves
                                     sendMyChoiceToServer servCon myChoice ""
                                     nextMsg <- getNextMsg servCon
                                     gameLoop nextMsg (whoDoesTheNextPointsCountFor myChoice) (addAEmptyElementIfISave myChoice myMoves) (appendAEmptyList otherMoves)
