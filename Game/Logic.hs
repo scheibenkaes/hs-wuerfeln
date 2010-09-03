@@ -57,25 +57,31 @@ breakAfterPoints own _ =
 
 moderateAggressive :: LogicCallback
 moderateAggressive own other =
+    if isSomeoneInCloseRange own other
+        then
+            keepRolling own other
+        else
+            breakAfterPoints own other
+
+isSomeoneInCloseRange :: GameResult -> GameResult -> Bool
+isSomeoneInCloseRange own other = 
     let myPoints        = sumOfAllCountingRounds own
         otherPoints     = sumOfAllCountingRounds other
         myPointsLeft    = maxPoints - myPoints
         otherPointsLeft = maxPoints - otherPoints
         amIInRange      = inCloseRange myPointsLeft
         otherInRange    = inCloseRange otherPointsLeft
-    in  
-        if amIInRange || otherInRange
-            then
-                keepRolling own other
-            else
-                breakAfterPoints own other
+    in amIInRange || otherInRange
 
 diceLogic :: LogicCallback
-diceLogic _ _ = do
-    pred <- rollDice
-    if notLegal pred
-        then return Save
-        else return Roll
+diceLogic own other = do
+    if isSomeoneInCloseRange own other
+        then return Roll
+        else do
+            pred <- rollDice
+            if notLegal pred
+                then return Save
+                else return Roll
 
 inCloseRange :: Int -> Bool
 inCloseRange p = p <= 6
