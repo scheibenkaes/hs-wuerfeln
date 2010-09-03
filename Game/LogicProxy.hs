@@ -21,8 +21,9 @@ import Game.Logic
 getLogic :: String -> LogicCallback
 getLogic l =
     case l of
-        "1"    -> keepRolling
-        "2"    -> breakAfterPoints
+        "1" -> keepRolling
+        "2" -> breakAfterPoints
+        "3" -> diceLogic
         _      -> moderateAggressive
 
 

@@ -16,6 +16,8 @@
 -}
 module Game.Logic where
 
+import System.Random
+
 data PlayerChoice = 
     Roll 
     | Save 
@@ -31,6 +33,9 @@ type RoundResult    = [ThrowResult]
 type GameResult     = [RoundResult]
 
 type LogicCallback = GameResult -> GameResult -> IO PlayerChoice
+
+rollDice :: IO Int
+rollDice = getStdRandom (randomR (1,6))
 
 keepRolling :: LogicCallback
 keepRolling _ _ = return Roll
@@ -64,6 +69,13 @@ moderateAggressive own other =
                 keepRolling own other
             else
                 breakAfterPoints own other
+
+diceLogic :: LogicCallback
+diceLogic _ _ = do
+    pred <- rollDice
+    if notLegal pred
+        then return Save
+        else return Roll
 
 inCloseRange :: Int -> Bool
 inCloseRange p = p <= 6
