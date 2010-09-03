@@ -45,7 +45,7 @@ detectWhoStarts p1 p2 = do
         then return (p1, p2)
         else return (p2, p1)
     where   even = do
-            val <- roll d6  
+            val <- rollDice
             return $ val `mod` 2 == 0
 
 rollDice :: IO Int
