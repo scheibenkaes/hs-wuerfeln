@@ -17,9 +17,8 @@
 module Server.ServerLogic where
 
 import System.IO
+import System.Random
 import Text.Printf
-
-import Numeric.Probability.Game.Dice
 
 import Networking.Messages
 import Server.Connectivity
@@ -50,7 +49,7 @@ detectWhoStarts p1 p2 = do
             return $ val `mod` 2 == 0
 
 rollDice :: IO Int
-rollDice = roll d6
+rollDice = getStdRandom (randomR (1,6))
 
 runMatch :: Match -> IO Result
 runMatch = runMatch' [] 
