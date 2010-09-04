@@ -45,11 +45,11 @@ startMatch :: Player -> Player -> IO ()
 startMatch player1 player2 = do
     putStrLn "Starting match..."
     starting <- detectWhoStarts player1 player2
-    let match = Match {
+    let m = Match {
           firstPlayer   = fst starting
         , secondPlayer  = snd starting
     }
-    result <- runMatch match
+    result <- runMatch m
     finishMatch result
 
 quitConnection :: String -> [Player] -> IO ()
@@ -95,17 +95,17 @@ mainLoop master gameState = do
     plCon <- accept master
     case handleIncomingConnection plCon gameState of
         (WaitingForTwoPlayers)                  -> mainLoop master WaitingForTwoPlayers
-        waiting@(WaitingForAnotherPlayer p1)     -> do
+        waiting@(WaitingForAnotherPlayer _)     -> do
             putStrLn "Waiting for a second player."
             mainLoop master waiting
         (GameReadyToStart p1 p2)            -> do
             -- Start match
-            forkIO (prepareMatch p1 p2)
+            _ <- forkIO (prepareMatch p1 p2)
             mainLoop master WaitingForTwoPlayers
 
     where   handleIncomingConnection :: ClientConnection -> GameState -> GameState
             handleIncomingConnection newConn WaitingForTwoPlayers           = WaitingForAnotherPlayer newConn
-            handleIncomingConnection newConn (WaitingForAnotherPlayer fst)  = GameReadyToStart fst newConn
+            handleIncomingConnection newConn (WaitingForAnotherPlayer first)  = GameReadyToStart first newConn
             handleIncomingConnection _ st    = error $ "Illegal state: " ++ show st
                 
 

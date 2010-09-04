@@ -40,11 +40,11 @@ data Result = Result {
 
 detectWhoStarts :: Player -> Player -> IO (Player, Player)
 detectWhoStarts p1 p2 = do
-    isEven <- even
+    isEven <- rollAEvenNumber
     if isEven
         then return (p1, p2)
         else return (p2, p1)
-    where   even = do
+    where   rollAEvenNumber = do
             val <- rollDice
             return $ val `mod` 2 == 0
 
@@ -92,9 +92,9 @@ readNextClientMessage h = do
     return msg
 
 runMatch' :: [Int] -> Match -> IO Result
-runMatch' ps match = do
-    let playerWhoIsInTurn   = firstPlayer match 
-        otherPlayer         = secondPlayer match
+runMatch' ps m = do
+    let playerWhoIsInTurn   = firstPlayer m 
+        otherPlayer         = secondPlayer m
 
     sendTurnTo (savePoints playerWhoIsInTurn ps) otherPlayer
     choice <- readNextClientMessage (connection playerWhoIsInTurn)
@@ -103,18 +103,18 @@ runMatch' ps match = do
             dice <- rollDice
             sendThrwTo playerWhoIsInTurn otherPlayer dice
             case dice of 
-                6   -> runMatch' [] (match { firstPlayer = otherPlayer, secondPlayer = playerWhoIsInTurn })
+                6   -> runMatch' [] (m { firstPlayer = otherPlayer, secondPlayer = playerWhoIsInTurn })
                 p   -> do
                     let sumAfterRoll    = (points playerWhoIsInTurn) + sum ps + p
                         winner          = sumAfterRoll >= 50
                     case winner of
-                        True    -> return $ Result (match {firstPlayer = playerWhoIsInTurn {points = sumAfterRoll}, secondPlayer = otherPlayer})
-                        _       -> runMatch' (dice:ps) match
+                        True    -> return $ Result (m {firstPlayer = playerWhoIsInTurn {points = sumAfterRoll}, secondPlayer = otherPlayer})
+                        _       -> runMatch' (dice:ps) m
 
-        (SAVE _) -> runMatch' [] (match {firstPlayer = otherPlayer, secondPlayer = savePoints playerWhoIsInTurn ps})
+        (SAVE _) -> runMatch' [] (m {firstPlayer = otherPlayer, secondPlayer = savePoints playerWhoIsInTurn ps})
         _        -> error "Unknown message!"
 
     where
         savePoints :: Player -> [Int] -> Player
-        savePoints p ps= p {points = (points p) + (sum ps)}
+        savePoints p players = p {points = (points p) + (sum players)}
 
