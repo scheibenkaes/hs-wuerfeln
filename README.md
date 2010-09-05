@@ -42,5 +42,5 @@ Server:
 
 Im Umfang der Software ist auch eine Serverimplementierung enthalten, die über `make server` gestartet werden kann.
 
-Die Abhängigkeiten des Servers sind die selben wie die des Clients.
+Die Abhängigkeiten des Servers sind die selben des Clients.
 
