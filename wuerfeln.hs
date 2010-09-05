@@ -39,7 +39,7 @@ gameEnded (WIN _ _ _) own other =
 gameEnded (DEF _ _ _) own other =
                             putStatisticsOfPlayer "mich" own >> 
                             putStatisticsOfPlayer "den Anderen" other
-gameEnded msg@_ _ _  = putStrLn $ show msg
+gameEnded msg@_ _ _   = putStrLn $ show msg
 
 
 communicationLoop :: ServerMessage -> LogicCallback -> ServerConnection -> IO ()
