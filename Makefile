@@ -22,3 +22,6 @@ clean:
 
 analyzer:
 	ghc --make -o analyze analyze-log
+
+all: build build-server analyzer
+
