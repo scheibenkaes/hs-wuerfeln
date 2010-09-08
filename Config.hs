@@ -21,7 +21,7 @@ import System.Console.GetOpt
 import System.Environment
 
 appName :: String
-appName = "olddice"
+appName = "pontiac"
 
 defaultServer :: String
 defaultServer = "wettbewerb.linux-magazin.de"
