@@ -19,7 +19,12 @@ Erstellen des Programms
 ========================
 Zum Erstellen des Programms reicht der Aufruf `make`, alternativ `make build`.
 
-Das Programm kann gestartet werden, indem "wuerfeln" aufgerufen wird, oder über den Aufruf `make game`
+Starten des Programms
+=====================
+
+Das Programm kann gestartet werden, indem "./wuerfeln" aufgerufen wird, alternativ über den Aufruf `make game`.
+Ein Aufruf ohne Parameter führt dazu, dass das Programm versucht sich zum Server unter wettbewerb.linux-magazin.de zu verbinden um dort an einer Partie teilzunehmen.
+Nach dem Spielen einer Partie, oder wenn keine Verbindung zu stande kam, beendet sich das Programm.
 
 
 Parameter:
